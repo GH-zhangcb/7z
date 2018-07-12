@@ -1,0 +1,6 @@
+*.suo
+*.mdb
+*.sln
+*.config
+
+Debug/
