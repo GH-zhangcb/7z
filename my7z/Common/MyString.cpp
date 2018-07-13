@@ -1297,6 +1297,11 @@ int UString::ReverseFind_PathSepar() const throw()
   }
 }
 
+int UString::ReturnUStringLength() const throw()
+{
+		return _len;
+}
+
 void UString::TrimLeft() throw()
 {
   const wchar_t *p = _chars;

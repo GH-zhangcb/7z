@@ -176,6 +176,7 @@ STDMETHODIMP CArchiveExtractCallback::SetCompleted(const UInt64 * /* completeVal
 	return S_OK;
 }
 
+
 STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index,
 	ISequentialOutStream **outStream, Int32 askExtractMode)
 {
@@ -249,15 +250,21 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index,
 		/* bool newFileSizeDefined = */ ConvertPropVariantToUInt64(prop, newFileSize);
 	}
 
-
-	{
+	int slashPos_front = _filePath.ReverseFind_PathSepar();//得到文件所在的路径，返回路径的长度，不包括最后的‘\’
+	int slashPos_length=_filePath.ReturnUStringLength();//字符串长度
+	FString fullProcessedPath = StringToFString(L"");//初始化路径
 		// Create folders for file
-		int slashPos = _filePath.ReverseFind_PathSepar();
-		if (slashPos >= 0)
-			CreateComplexDir(_directoryPath + us2fs(_filePath.Left(slashPos)));
-	}
+		if (slashPos_front >= 0)
+		{
+			CreateComplexDir(_directoryPath + us2fs(_filePath.Left(slashPos_front)));
+			fullProcessedPath = _directoryPath + us2fs(_filePath.Mid(slashPos_front + 1, slashPos_length - slashPos_front - 1));
+		}
+        else
+		{
+			fullProcessedPath = _directoryPath + us2fs(_filePath.Mid(slashPos_front + 1, slashPos_length));
+         }
 
-	FString fullProcessedPath = _directoryPath + us2fs(_filePath);
+	//FString fullProcessedPath = _directoryPath + us2fs(_filePath);
 	_diskFilePath = fullProcessedPath;
 
 	if (_processedFileInfo.isDir)
@@ -680,7 +687,7 @@ bool CompressExtract::findOpenInit(const wstring &archiveFileName)
 	return true;
 }
 
-bool CompressExtract::ExtractFile(const wstring &archiveFileName)
+bool CompressExtract::ExtractFile(const wstring &archiveFileName,const wstring &outputPathName)
 {
 	  if (!Load7zDLL())
 		return false;
@@ -689,7 +696,8 @@ bool CompressExtract::ExtractFile(const wstring &archiveFileName)
 	   //uncompress
 		CArchiveExtractCallback *extractCallbackSpec = new CArchiveExtractCallback;
 		CMyComPtr<IArchiveExtractCallback> extractCallback(extractCallbackSpec);
-		extractCallbackSpec->Init(_archive, FString());
+		FString outputPath = StringToFString(outputPathName.c_str());//输出的路径
+		extractCallbackSpec->Init(_archive, outputPath);
 		extractCallbackSpec->PasswordIsDefined = false;
 		HRESULT result = _archive->Extract(NULL, (UInt32)(Int32)(-1), false, extractCallback);
 		if (result != S_OK)

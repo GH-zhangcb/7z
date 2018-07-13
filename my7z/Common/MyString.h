@@ -645,6 +645,7 @@ public:
   int ReverseFind(wchar_t c) const throw();
   int ReverseFind_Dot() const throw() { return ReverseFind(L'.'); }
   int ReverseFind_PathSepar() const throw();
+  int ReturnUStringLength() const throw();//自己加的
 
   int Find(const wchar_t *s) const { return Find(s, 0); }
   int Find(const wchar_t *s, unsigned startIndex) const throw();

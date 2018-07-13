@@ -9,7 +9,7 @@ class CompressExtract
 public:
 	CompressExtract();
 	bool CompressFile(const wstring &archiveFileName, const wstring &fileNames);//archiveFile="xxx.7z",FileName="test1.txt test2.txt"多个文件之间以'/'分开,若有和压缩
-	bool ExtractFile(const wstring &archiveFileName);//archiveFile="xxx.7z",解压到当前文件夹,覆盖当前与之同名的文件
+	bool ExtractFile(const wstring &archiveFileName,const wstring &outputPathName);//archiveFile="xxx.7z",解压文件到指定的目录，outputPathName以'\\'结尾
 	bool ShowArchivefileList(const wstring &archiveFileName,vector<wstring> &archivefilenamelist);//展示压缩文件里面的文件
 private:
 	bool Load7zDLL();
