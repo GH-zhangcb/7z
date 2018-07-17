@@ -711,7 +711,7 @@ bool CompressExtract::ExtractFile(const wstring &archiveFileName,const wstring &
 	return true;
 }
 
-bool CompressExtract::ShowArchivefileList(const wstring &archiveFileName,vector<wstring> &archivefilenamelist)
+bool CompressExtract::ShowArchivefileList(const wstring &archiveFileName,map<wstring,int> &archivefilelist)
 {
 	if (!Load7zDLL())
 		return false;
@@ -721,25 +721,22 @@ bool CompressExtract::ShowArchivefileList(const wstring &archiveFileName,vector<
 	_archive->GetNumberOfItems(&numItems);
 	for (UInt32 i = 0; i < numItems; i++)
 	{
-		{
-			// Get uncompressed size of file
-			NCOM::CPropVariant prop;
-			_archive->GetProperty(i, kpidSize, &prop);
-			wchar_t s[32];//之前是char
-			ConvertPropVariantToShortString(prop, s);//s为文件的大小，文件夹大小为0
-		}
-		{
-		// Get name of file
+		// Get uncompressed size of file
 		NCOM::CPropVariant prop;
+		_archive->GetProperty(i, kpidSize, &prop);
+		char s[32];//之前是char
+		ConvertPropVariantToShortString(prop, s);//s为文件的大小	
+		// Get name of file
+		//NCOM::CPropVariant prop;
 		_archive->GetProperty(i, kpidPath, &prop);
 		if (prop.vt == VT_BSTR)
 		{
-			archivefilenamelist.push_back(prop.bstrVal);
-		}//wcout << prop.bstrVal << endl;
+			archivefilelist.insert(make_pair(prop.bstrVal,atoi(s)));
+		}
 		else if (prop.vt != VT_EMPTY)
 			cout << "ERROR!" << endl;
 		
-	     }
+	     
 	}
 	return true;
 }
