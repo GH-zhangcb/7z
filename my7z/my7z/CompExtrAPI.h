@@ -16,10 +16,16 @@ private:
 	bool createObjectInit();
 	void FileStringToChar(const wstring &fileNames);
 	bool findOpenInit(const wstring &archiveFileName);
+	bool filePathExist(const wstring &wsfileName, vector<wstring>& filesList);
+	bool DirectoryPathExit(const wstring &wsDirName, vector<wstring>&filesList);
+	bool GetAllFiles();
+	wstring string2wstring(const string &str);
+	string wstring2string(const wstring &wstr);
 private:
 	wstring load7zDllName;
 	HMODULE DllHandleName;
 	Func_CreateObject _createObjectFunc;
 	CMyComPtr<IInArchive> _archive;
 	vector<wstring>_filename;
+	vector<wstring>_allfileLise;
 };

@@ -1302,6 +1302,19 @@ int UString::ReturnUStringLength() const throw()
 		return _len;
 }
 
+int UString::ReturnUString_PathSeparFront() const throw()
+{
+	if (_len == 0)
+		return -1;
+
+	for (unsigned i = 0; i < _len; i++)
+	{
+		if (_chars[i] == '\\')
+			return i;
+	}
+	return -1;
+}
+
 void UString::TrimLeft() throw()
 {
   const wchar_t *p = _chars;

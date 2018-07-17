@@ -3,6 +3,7 @@
 #include<iostream>
 #include<windows.h>
 #include<vector>
+#include <io.h>
 #include <initguid.h>
 #include "../Common/MyString.h"
 #include "../Common/StringConvert.h"
@@ -250,14 +251,15 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index,
 		/* bool newFileSizeDefined = */ ConvertPropVariantToUInt64(prop, newFileSize);
 	}
 
-	int slashPos_front = _filePath.ReverseFind_PathSepar();//得到文件所在的路径，返回路径的长度，不包括最后的‘\’
+	//int slashPos_back = _filePath.ReverseFind_PathSepar();//得到文件所在的路径，返回路径的长度，不包括最后的‘\’
+	int slashPos_front = _filePath.ReturnUString_PathSeparFront();
 	int slashPos_length=_filePath.ReturnUStringLength();//字符串长度
 	FString fullProcessedPath = StringToFString(L"");//初始化路径
 		// Create folders for file
-		if (slashPos_front >= 0)
+	if (slashPos_front >= 0)
 		{
-			CreateComplexDir(_directoryPath + us2fs(_filePath.Left(slashPos_front)));
-			fullProcessedPath = _directoryPath + us2fs(_filePath.Mid(slashPos_front + 1, slashPos_length - slashPos_front - 1));
+		//CreateComplexDir(_directoryPath + us2fs(_filePath.Left(slashPos_back)));
+		fullProcessedPath = _directoryPath + us2fs(_filePath.Mid(slashPos_front + 1, slashPos_length - slashPos_front - 1));
 		}
         else
 		{
@@ -624,6 +626,7 @@ CompressExtract::CompressExtract()
 	_createObjectFunc = NULL;
 	_archive = NULL;
 	_filename = {};
+	_allfileLise = {};
 }
 
 bool CompressExtract::Load7zDLL()
@@ -766,6 +769,114 @@ void CompressExtract::FileStringToChar(const wstring &fileNames)
 	_filename = filename;
 }
 
+string CompressExtract::wstring2string(const wstring &wstr)
+{
+	string result;
+	//获取缓冲区大小，并申请空间，缓冲区大小事按字节计算的  
+	int len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), wstr.size(), NULL, 0, NULL, NULL);
+	char* buffer = new char[len + 1];
+	//宽字节编码转换成多字节编码  
+	WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), wstr.size(), buffer, len, NULL, NULL);
+	buffer[len] = '\0';
+	//删除缓冲区并返回值  
+	result.append(buffer);
+	delete[] buffer;
+	return result;
+}
+
+wstring CompressExtract::string2wstring(const string &str)
+{
+	wstring result;
+	//获取缓冲区大小，并申请空间，缓冲区大小按字符计算  
+	int len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), NULL, 0);
+	TCHAR* buffer = new TCHAR[len + 1];
+	//多字节编码转换成宽字节编码  
+	MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), buffer, len);
+	buffer[len] = '\0';             //添加字符串结尾  
+	//删除缓冲区并返回值  
+	result.append(buffer);
+	delete[] buffer;
+	return result;
+}
+
+bool CompressExtract::filePathExist(const wstring &wsfileName, vector<wstring>& filesList)//wsfileName可以用通配符(可以是某一类文件)
+{
+	if (wsfileName.empty())
+		return false;
+	struct _finddata_t fileinfo;
+	string sfileName = wstring2string(wsfileName);
+	long hFile = _findfirst(sfileName.c_str(), &fileinfo);
+	if (hFile == -1)
+	{
+		cout << "file not existed" << endl;
+		return false;
+	}
+	else
+	{
+		do
+		{
+			wstring wstemp = string2wstring(sfileName);
+			filesList.push_back(wstemp);
+		} while (_findnext(hFile, &fileinfo) == 0);
+	}
+	return true;
+}
+
+bool CompressExtract::DirectoryPathExit(const wstring &wsDirName, vector<wstring>&filesList)
+{
+	if (wsDirName.empty())
+		return false;
+	struct _finddata_t fileinfo;
+	string sDirName = wstring2string(wsDirName);
+	string sDirName_append = sDirName + "\\*";
+	long hFile = _findfirst(sDirName_append.c_str(), &fileinfo);
+	if (hFile == -1)
+	{
+		cout << "can't match path" << endl;
+		return false;
+	}
+	do{
+		string stemp = sDirName + "\\" + fileinfo.name;
+		wstring newPath = string2wstring(stemp);
+
+		if (fileinfo.attrib & _A_SUBDIR)//目录
+		{
+			if ((strcmp(fileinfo.name, ".") != 0) && (strcmp(fileinfo.name, "..") != 0))
+			{
+				DirectoryPathExit(newPath, filesList);
+			}
+		}
+		else
+		{
+			filesList.push_back(newPath);
+		}
+	} while (_findnext(hFile, &fileinfo) == 0);
+
+	if (strcmp(fileinfo.name, "..") == 0)//文件夹为空
+	{
+		filesList.push_back(wsDirName);
+	}
+	return true;
+}
+
+bool CompressExtract::GetAllFiles()
+{
+	for (int i = 0; (size_t)i< _filename.size(); i++)
+	{
+		if (_filename[i].empty())
+			return false;
+		struct _finddata_t fileinfo;
+		string sallNames = wstring2string(_filename[i]);
+		long hFile = _findfirst(sallNames.c_str(), &fileinfo);
+		if (fileinfo.attrib &_A_SUBDIR)
+			 DirectoryPathExit(_filename[i], _allfileLise);
+		else
+			 filePathExist(_filename[i], _allfileLise);
+	}
+	return true;
+}
+
+
 bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring &fileNames)
 {
 	if (!Load7zDLL())
@@ -774,13 +885,18 @@ bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring
 		return false;
 	FString archiveName = StringToFString(archiveFileName.c_str());
 	FileStringToChar(fileNames);
+	if (!GetAllFiles())
+	{
+		cout << "file get failed" << endl;
+		return false;
+	}
 	CObjectVector<CDirItem> dirItems;
 	{
 		size_t i;
-		for (i = 0; i < _filename.size(); i++)
+		for (i = 0; i < _allfileLise.size(); i++)
 		{
 			CDirItem di;
-			FString name = StringToFString(_filename[i].c_str());//文件名
+			FString name = StringToFString(_allfileLise[i].c_str());//文件名
 
 			NFind::CFileInfo fi;
 			if (!fi.Find(name))

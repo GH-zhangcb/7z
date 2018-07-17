@@ -2,5 +2,7 @@
 *.mdb
 *.sln
 *.config
+*.opensdf
 
 Debug/
+ipch/
