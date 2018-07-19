@@ -2,6 +2,7 @@
 
 #include<iostream>
 #include<windows.h>
+#include<shlwapi.h>
 #include<vector>
 #include <io.h>
 #include <initguid.h>
@@ -805,10 +806,11 @@ bool CompressExtract::filePathExist(const wstring &wsfileName, vector<wstring>& 
 {
 	if (wsfileName.empty())
 		return false;
-	struct _finddata_t fileinfo;
-	string sfileName = wstring2string(wsfileName);
-	long hFile = _findfirst(sfileName.c_str(), &fileinfo);
-	if (hFile == -1)
+	//struct _finddata_t fileinfo;
+	//string sfileName = wstring2string(wsfileName);
+	WIN32_FIND_DATA fileinfo;
+	HANDLE hFile = FindFirstFile(wsfileName.c_str(), &fileinfo);
+	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		cout << "file not existed" << endl;
 		return false;
@@ -817,9 +819,9 @@ bool CompressExtract::filePathExist(const wstring &wsfileName, vector<wstring>& 
 	{
 		do
 		{
-			wstring wstemp = string2wstring(sfileName);
-			filesList.push_back(wstemp);
-		} while (_findnext(hFile, &fileinfo) == 0);
+			//wstring wstemp = string2wstring(sfileName);
+			filesList.push_back(wsfileName);
+		} while (FindNextFile(hFile, &fileinfo) == 0);
 	}
 	return true;
 }
@@ -828,23 +830,23 @@ bool CompressExtract::DirectoryPathExit(const wstring &wsDirName, vector<wstring
 {
 	if (wsDirName.empty())
 		return false;
-	struct _finddata_t fileinfo;
-	string sDirName = wstring2string(wsDirName);
-	string sDirName_append = sDirName + "\\*";
-	long hFile = _findfirst(sDirName_append.c_str(), &fileinfo);
-	if (hFile == -1)
+	WIN32_FIND_DATA fileinfo;
+	//string sDirName = wstring2string(wsDirName);
+	wstring sDirName_append = wsDirName + L"\\*";
+	HANDLE hFile = FindFirstFile(sDirName_append.c_str(), &fileinfo);
+	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		cout << "can't match path" << endl;
 		return false;
 	}
 	do
 	{
-		string stemp = sDirName + "\\" + fileinfo.name;
-		wstring newPath = string2wstring(stemp);
+		wstring newPath = wsDirName + L"\\" + fileinfo.cFileName;
+		//wstring newPath = string2wstring(stemp);
 
-		if (fileinfo.attrib & _A_SUBDIR)//目录
+		if (fileinfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)//目录
 		{
-			if ((strcmp(fileinfo.name, ".") != 0) && (strcmp(fileinfo.name, "..") != 0))
+			if ((StrCmpW(fileinfo.cFileName, L".") != 0) && (StrCmpW(fileinfo.cFileName, L"..") != 0))
 			{
 				DirectoryPathExit(newPath, filesList);
 			}
@@ -853,9 +855,9 @@ bool CompressExtract::DirectoryPathExit(const wstring &wsDirName, vector<wstring
 		{
 			filesList.push_back(newPath);
 		}
-	} while (_findnext(hFile, &fileinfo) == 0);
+	} while (FindNextFile(hFile, &fileinfo) == 0);
 
-	if (strcmp(fileinfo.name, "..") == 0)//文件夹为空
+	if (StrCmpW(fileinfo.cFileName, L"..") == 0)//文件夹为空
 	{
 		filesList.push_back(wsDirName);
 	}
@@ -869,10 +871,10 @@ bool CompressExtract::GetAllFiles()
 	{
 		if (_filename[i].empty())
 			return false;
-		struct _finddata_t fileinfo;
-		string sallNames = wstring2string(_filename[i]);
-		long hFile = _findfirst(sallNames.c_str(), &fileinfo);
-		if (fileinfo.attrib &_A_SUBDIR)
+		WIN32_FIND_DATA fileinfo;
+		//string sallNames = wstring2string(_filename[i]);
+		HANDLE hFile = FindFirstFile(_filename[i].c_str(), &fileinfo);
+		if (fileinfo.dwFileAttributes &FILE_ATTRIBUTE_DIRECTORY)
 			//得到文件夹下所有的文件
 			DirectoryPathExit(_filename[i], _allfileList);	
 		else
