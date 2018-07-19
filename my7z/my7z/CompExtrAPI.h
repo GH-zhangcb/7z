@@ -15,11 +15,12 @@ public:
 private:
 	bool Load7zDLL();
 	bool createObjectInit();
-	void FileStringToChar(const wstring &fileNames);
+	void FileStringSepar(const wstring &fileNames);
 	bool findOpenInit(const wstring &archiveFileName);
 	bool filePathExist(const wstring &wsfileName, vector<wstring>& filesList);
 	bool DirectoryPathExit(const wstring &wsDirName, vector<wstring>&filesList);
 	bool GetAllFiles();
+	wstring FindCompressFilePath(const wstring  &filecompresspath, const wstring &filecompressFullpath);
 	wstring string2wstring(const string &str);
 	string wstring2string(const wstring &wstr);
 private:
@@ -28,5 +29,6 @@ private:
 	Func_CreateObject _createObjectFunc;
 	CMyComPtr<IInArchive> _archive;
 	vector<wstring>_filename;
-	vector<wstring>_allfileLise;
+	vector<wstring>_allfileList;
+	vector<wstring>_compressfilePath;
 };

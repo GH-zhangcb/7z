@@ -530,7 +530,7 @@ static void GetStream2(const wchar_t *name)
 	cout<<"Compressing"<<endl;
 	if (name[0] == 0)
 		name = kEmptyFileAlias;
-	cout<<name<<endl;
+	wcout<<name<<endl;
 }
 
 STDMETHODIMP CArchiveUpdateCallback::GetStream(UInt32 index, ISequentialInStream **inStream)
@@ -626,7 +626,8 @@ CompressExtract::CompressExtract()
 	_createObjectFunc = NULL;
 	_archive = NULL;
 	_filename = {};
-	_allfileLise = {};
+	_allfileList = {};
+	_compressfilePath = {};
 }
 
 bool CompressExtract::Load7zDLL()
@@ -692,9 +693,9 @@ bool CompressExtract::findOpenInit(const wstring &archiveFileName)
 
 bool CompressExtract::ExtractFile(const wstring &archiveFileName,const wstring &outputPathName)
 {
-	  if (!Load7zDLL())
+	if (!Load7zDLL())
 		return false;
-	  if (archiveFileName.empty() || !createObjectInit()||!findOpenInit(archiveFileName))
+    if (archiveFileName.empty() || !createObjectInit()||!findOpenInit(archiveFileName))
 		 return false;
 	   //uncompress
 		CArchiveExtractCallback *extractCallbackSpec = new CArchiveExtractCallback;
@@ -741,7 +742,7 @@ bool CompressExtract::ShowArchivefileList(const wstring &archiveFileName,map<wst
 	return true;
 }
 
-void CompressExtract::FileStringToChar(const wstring &fileNames)
+void CompressExtract::FileStringSepar(const wstring &fileNames)
 {
 	if (fileNames.empty())
 		return ;
@@ -768,7 +769,9 @@ void CompressExtract::FileStringToChar(const wstring &fileNames)
 
 string CompressExtract::wstring2string(const wstring &wstr)
 {
-	string result;
+	if (wstr.empty())
+		return "";
+	string result="";
 	//获取缓冲区大小，并申请空间，缓冲区大小事按字节计算的  
 	int len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), wstr.size(), NULL, 0, NULL, NULL);
 	char* buffer = new char[len + 1];
@@ -783,7 +786,9 @@ string CompressExtract::wstring2string(const wstring &wstr)
 
 wstring CompressExtract::string2wstring(const string &str)
 {
-	wstring result;
+	if (str.empty())
+		return L"";
+	wstring result=L"";
 	//获取缓冲区大小，并申请空间，缓冲区大小按字符计算  
 	int len = MultiByteToWideChar(CP_ACP, 0, str.c_str(), str.size(), NULL, 0);
 	TCHAR* buffer = new TCHAR[len + 1];
@@ -832,7 +837,8 @@ bool CompressExtract::DirectoryPathExit(const wstring &wsDirName, vector<wstring
 		cout << "can't match path" << endl;
 		return false;
 	}
-	do{
+	do
+	{
 		string stemp = sDirName + "\\" + fileinfo.name;
 		wstring newPath = string2wstring(stemp);
 
@@ -858,7 +864,8 @@ bool CompressExtract::DirectoryPathExit(const wstring &wsDirName, vector<wstring
 
 bool CompressExtract::GetAllFiles()
 {
-	for (int i = 0; (size_t)i< _filename.size(); i++)
+	size_t star = 0;
+	for (int i = 0; (size_t)i <  _filename.size(); i++)
 	{
 		if (_filename[i].empty())
 			return false;
@@ -866,13 +873,37 @@ bool CompressExtract::GetAllFiles()
 		string sallNames = wstring2string(_filename[i]);
 		long hFile = _findfirst(sallNames.c_str(), &fileinfo);
 		if (fileinfo.attrib &_A_SUBDIR)
-			 DirectoryPathExit(_filename[i], _allfileLise);
+			//得到文件夹下所有的文件
+			DirectoryPathExit(_filename[i], _allfileList);	
 		else
-			 filePathExist(_filename[i], _allfileLise);
+			filePathExist(_filename[i], _allfileList);
+
+		
+		//得到需压缩的文件路径
+		
+		for (; star < _allfileList.size(); star++)
+		{
+			wstring strtemp = FindCompressFilePath(_filename[i], _allfileList[star]);
+			_compressfilePath.push_back(strtemp);
+		}
+	
 	}
 	return true;
 }
 
+wstring CompressExtract::FindCompressFilePath(const wstring  &filecompresspath, const wstring &filecompressFullpath)
+{
+	if (filecompresspath.empty() || filecompressFullpath.empty())
+		return L"";
+	size_t Fpoint = filecompresspath.rfind(L"\\");
+	if (Fpoint != string::npos)
+	{
+		wstring temp = filecompresspath.substr(Fpoint + 1);
+		Fpoint = filecompressFullpath.find(temp);
+		return filecompressFullpath.substr(Fpoint);
+	}
+	return filecompressFullpath;
+}
 
 bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring &fileNames)
 {
@@ -881,7 +912,7 @@ bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring
 	if (archiveFileName.empty() || fileNames.empty() || !createObjectInit())
 		return false;
 	FString archiveName = StringToFString(archiveFileName.c_str());
-	FileStringToChar(fileNames);
+	FileStringSepar(fileNames);
 	if (!GetAllFiles())
 	{
 		cout << "file get failed" << endl;
@@ -890,11 +921,10 @@ bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring
 	CObjectVector<CDirItem> dirItems;
 	{
 		size_t i;
-		for (i = 0; i < _allfileLise.size(); i++)
+		for (i = 0; i < _allfileList.size(); i++)
 		{
 			CDirItem di;
-			FString name = StringToFString(_allfileLise[i].c_str());//文件名
-
+			FString name = StringToFString(_allfileList[i].c_str());//文件名
 			NFind::CFileInfo fi;
 			if (!fi.Find(name))
 			{
@@ -906,15 +936,16 @@ bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring
 			di.CTime = fi.CTime;
 			di.ATime = fi.ATime;
 			di.MTime = fi.MTime;
-			di.Name = fs2us(name);
-			di.FullPath = name;
+			
+			di.Name = fs2us(StringToFString(_compressfilePath[i].c_str()));//注：name是文件的名称，会把name字符串全部压缩，所以name若带路径，则连路径也一块压缩进去
+			di.FullPath = name;//fullPath是文件所在的全路径
 			dirItems.Add(di);
 		}
 	}
 
 	COutFileStream *outFileStreamSpec = new COutFileStream;
 	CMyComPtr<IOutStream> outFileStream = outFileStreamSpec;
-	if (!outFileStreamSpec->Create(archiveName, false))
+	if (!outFileStreamSpec->Create(archiveName, false))//创建打包文件，若把false改成true，则为若压缩文件存在就覆盖
 	{
 		cout << "can't create archive file" << endl;
 		return false;
@@ -931,7 +962,7 @@ bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring
 	CMyComPtr<IArchiveUpdateCallback2> updateCallback(updateCallbackSpec);
 	updateCallbackSpec->Init(&dirItems);
 
-	HRESULT result = outArchive->UpdateItems(outFileStream, dirItems.Size(), updateCallback);
+	HRESULT result = outArchive->UpdateItems(outFileStream, dirItems.Size(), updateCallback);//压缩
 	updateCallbackSpec->Finilize();
 	if (result != S_OK)
 	{

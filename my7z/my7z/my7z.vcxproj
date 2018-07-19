@@ -99,6 +99,7 @@
     <ClInclude Include="..\Common\MyWindows.h" />
     <ClInclude Include="..\Common\NewHandler.h" />
     <ClInclude Include="..\Common\PropID.h" />
+    <ClInclude Include="..\Common\StdAfx.h" />
     <ClInclude Include="..\Common\StringConvert.h" />
     <ClInclude Include="..\Windows\Defs.h" />
     <ClInclude Include="..\Windows\FileDir.h" />
@@ -108,6 +109,7 @@
     <ClInclude Include="..\Windows\NtCheck.h" />
     <ClInclude Include="..\Windows\PropVariant.h" />
     <ClInclude Include="..\Windows\PropVariantConv.h" />
+    <ClInclude Include="..\Windows\StdAfx.h" />
     <ClInclude Include="CompExtrAPI.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>
