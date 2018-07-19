@@ -252,21 +252,21 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index,
 	}
 
 	//int slashPos_back = _filePath.ReverseFind_PathSepar();//得到文件所在的路径，返回路径的长度，不包括最后的‘\’
-	int slashPos_front = _filePath.ReturnUString_PathSeparFront();
-	int slashPos_length=_filePath.ReturnUStringLength();//字符串长度
-	FString fullProcessedPath = StringToFString(L"");//初始化路径
-		// Create folders for file
-	if (slashPos_front >= 0)
-		{
-		//CreateComplexDir(_directoryPath + us2fs(_filePath.Left(slashPos_back)));
-		fullProcessedPath = _directoryPath + us2fs(_filePath.Mid(slashPos_front + 1, slashPos_length - slashPos_front - 1));
-		}
-        else
-		{
-			fullProcessedPath = _directoryPath + us2fs(_filePath.Mid(slashPos_front + 1, slashPos_length));
-         }
+	//int slashPos_front = _filePath.ReturnUString_PathSeparFront();
+	//int slashPos_length=_filePath.ReturnUStringLength();//字符串长度
+	//FString fullProcessedPath = StringToFString(L"");//初始化路径
+	//	// Create folders for file
+	//if (slashPos_front >= 0)
+	//	{
+	//	//CreateComplexDir(_directoryPath + us2fs(_filePath.Left(slashPos_back)));
+	//	fullProcessedPath = _directoryPath + us2fs(_filePath.Mid(slashPos_front + 1, slashPos_length - slashPos_front - 1));
+	//	}
+ //       else
+	//	{
+	//		fullProcessedPath = _directoryPath + us2fs(_filePath.Mid(slashPos_front + 1, slashPos_length));
+ //        }
 
-	//FString fullProcessedPath = _directoryPath + us2fs(_filePath);
+	FString fullProcessedPath = _directoryPath + us2fs(_filePath);
 	_diskFilePath = fullProcessedPath;
 
 	if (_processedFileInfo.isDir)

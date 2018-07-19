@@ -5,7 +5,7 @@
 int main()
 {
 	CompressExtract aa,bb;
-	aa.CompressFile(L"D:\\1.7z", L"D:\\1");
+	//aa.CompressFile(L"D:\\1.7z", L"D:\\1");
 	/*map<wstring,int>abc = {};
 	aa.ShowArchivefileList(L"D:\\1.7z",abc);
 	auto map_iter = abc.begin();
@@ -15,6 +15,6 @@ int main()
 		map_iter++;
 	}*/
 
-	//bb.ExtractFile(L"D:\\1.7z",L"C:\\abc\\");
+	bb.ExtractFile(L"D:\\1.7z",L"C:\\abc\\");
 	return 0;
 }
