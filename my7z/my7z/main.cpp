@@ -5,9 +5,9 @@
 int main()
 {
 	CompressExtract aa,bb;
-	//aa.CompressFile(L"D:\\1.7z", L"D:\\YoudaoNote");
+	//aa.CompressFile(L"D:\\1.7z", L"D:\\YoudaoNote",L".\\7z.dll");
 	/*map<wstring,int>abc = {};
-	aa.ShowArchivefileList(L"D:\\1.7z",abc);
+	aa.ShowArchivefileList(L"D:\\1.7z",abc,L".\\7z.dll");
 	auto map_iter = abc.begin();
 	while (map_iter!=abc.end())
 	{
@@ -15,6 +15,6 @@ int main()
 		map_iter++;
 	}*/
 
-	bb.ExtractFile(L"D:\\1.7z",L"C:\\abc\\");
+	bb.ExtractFile(L"D:\\1.7z", L"C:\\abc", L".\\7z.dll");
 	return 0;
 }

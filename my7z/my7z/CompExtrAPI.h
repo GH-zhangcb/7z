@@ -9,11 +9,11 @@ class CompressExtract
 {
 public:
 	CompressExtract();
-	bool CompressFile(const wstring &archiveFileName, const wstring &fileNames);//archiveFile="xxx.7z",FileName="test1.txt test2.txt"多个文件之间以'/'分开,若有和压缩
-	bool ExtractFile(const wstring &archiveFileName,const wstring &outputPathName);//archiveFile="xxx.7z",解压文件到指定的目录，outputPathName以'\\'结尾
-	bool ShowArchivefileList(const wstring &archiveFileName, map<wstring,int> &archivefilelist);//展示压缩文件里面的文件,map中first为文件名，second为大小
+	bool CompressFile(const wstring &archiveFileName, const wstring &fileNames, const wstring &load7zDllName);//archiveFile="xxx.7z",FileName="test1.txt test2.txt"多个文件之间以'/'分开,若有和压缩
+	bool ExtractFile(const wstring &archiveFileName, const wstring &outputPathName, const wstring &load7zDllName);//archiveFile="xxx.7z",解压文件到指定的目录，outputPathName以'\\'结尾
+	bool ShowArchivefileList(const wstring &archiveFileName, map<wstring, int> &archivefilelist, const wstring &load7zDllName);//展示压缩文件里面的文件,map中first为文件名，second为大小
 private:
-	bool Load7zDLL();
+	bool Load7zDLL(const wstring &load7zDllName);
 	bool createObjectInit();
 	void FileStringSepar(const wstring &fileNames);
 	bool findOpenInit(const wstring &archiveFileName);
@@ -23,7 +23,7 @@ private:
 	wstring FindCompressFilePath(const wstring  &filecompresspath, const wstring &filecompressFullpath);
 	
 private:
-	wstring load7zDllName;
+
 	HMODULE DllHandleName;
 	Func_CreateObject _createObjectFunc;
 	CMyComPtr<IInArchive> _archive;

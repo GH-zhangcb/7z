@@ -103,7 +103,6 @@ static const wchar_t * const kEmptyFileAlias = L"[Content]";
 static const char * const kTestingString = "Testing     ";
 static const char * const kExtractingString = "Extracting  ";
 static const char * const kSkippingString = "Skipping    ";
-
 static const char * const kUnsupportedMethod = "Unsupported Method";
 static const char * const kCRCFailed = "CRC Failed";
 static const char * const kDataError = "Data Error";
@@ -162,7 +161,6 @@ public:
 	CArchiveExtractCallback() : PasswordIsDefined(false) {}
 };
 
-//定义
 void CArchiveExtractCallback::Init(IInArchive *archiveHandler, const FString &directoryPath)
 {
 	NumErrors = 0;
@@ -181,7 +179,7 @@ STDMETHODIMP CArchiveExtractCallback::SetCompleted(const UInt64 *completeValue)
 {
 	if (*completeValue < efileSize&&*completeValue != 0)
 		printf_s("%.2f%% \n", static_cast <float>(*completeValue) / efileSize * 100);
-	else if (*completeValue == efileSize && count == 1)
+	else if (*completeValue >= efileSize && count == 1)
 	{
 		wcout << "100.00%" << endl;
 		count++;
@@ -319,12 +317,12 @@ STDMETHODIMP CArchiveExtractCallback::PrepareOperation(Int32 askExtractMode)
 	};
 	switch (askExtractMode)
 	{
-	case NArchive::NExtract::NAskMode::kExtract: cout<<kExtractingString<<endl; break;
-	case NArchive::NExtract::NAskMode::kTest:  cout<<kTestingString<<endl; break;
-	case NArchive::NExtract::NAskMode::kSkip:  cout<<kSkippingString<<endl; break;
+	case NArchive::NExtract::NAskMode::kExtract: ; break;//cout<<kExtractingString<<endl
+	case NArchive::NExtract::NAskMode::kTest:   break;//cout<<kExtractingString<<endl
+	case NArchive::NExtract::NAskMode::kSkip:  break;//cout<<kExtractingString<<endl
 	};
 	
-	wcout<<_filePath<<endl;
+	//wcout<<_filePath<<endl;输出解压文件名
 	return S_OK;
 }
 
@@ -562,7 +560,7 @@ STDMETHODIMP CArchiveUpdateCallback::GetStream(UInt32 index, ISequentialInStream
 	RINOK(Finilize());
 
 	const CDirItem &dirItem = (*DirItems)[index];
-	GetStream2(dirItem.Name);
+	//GetStream2(dirItem.Name);输出解压名
 
 	if (dirItem.isDir())
 		return S_OK;
@@ -645,7 +643,6 @@ STDMETHODIMP CArchiveUpdateCallback::CryptoGetTextPassword2(Int32 *passwordIsDef
 ///////////////////////////主函数////////////////////////
 CompressExtract::CompressExtract()
 {
-	load7zDllName = L".\\7z.dll";
 	DllHandleName = NULL;
 	_createObjectFunc = NULL;
 	_archive = NULL;
@@ -654,7 +651,7 @@ CompressExtract::CompressExtract()
 	_compressfilePath = {};
 }
 
-bool CompressExtract::Load7zDLL()
+bool CompressExtract::Load7zDLL(const wstring &load7zDllName)
 {
 	if (load7zDllName.empty())
 		return false;
@@ -715,17 +712,18 @@ bool CompressExtract::findOpenInit(const wstring &archiveFileName)
 	return true;
 }
 
-bool CompressExtract::ExtractFile(const wstring &archiveFileName,const wstring &outputPathName)
+bool CompressExtract::ExtractFile(const wstring &archiveFileName, const wstring &outputPathName, const wstring &load7zDllName)
 {
-	if (!Load7zDLL())
+	if (!Load7zDLL(load7zDllName))
 		return false;
     if (archiveFileName.empty() || !createObjectInit()||!findOpenInit(archiveFileName))
 		 return false;
 	   //uncompress
 		CArchiveExtractCallback *extractCallbackSpec = new CArchiveExtractCallback;
 		CMyComPtr<IArchiveExtractCallback> extractCallback(extractCallbackSpec);
-		FString outputPath = StringToFString(outputPathName.c_str());//输出的路径
-		extractCallbackSpec->Init(_archive, outputPath);
+		wstring aoutputPathName = outputPathName + L"\\";
+		FString outputPath = StringToFString(aoutputPathName.c_str());//输出的路径
+		extractCallbackSpec->Init(_archive, outputPath);//outputPath必须以"\\"结尾
 		extractCallbackSpec->PasswordIsDefined = false;
 		HRESULT result = _archive->Extract(NULL, (UInt32)(Int32)(-1), false, extractCallback);
 		if (result != S_OK)
@@ -736,9 +734,9 @@ bool CompressExtract::ExtractFile(const wstring &archiveFileName,const wstring &
 	return true;
 }
 
-bool CompressExtract::ShowArchivefileList(const wstring &archiveFileName,map<wstring,int> &archivefilelist)
+bool CompressExtract::ShowArchivefileList(const wstring &archiveFileName, map<wstring, int> &archivefilelist, const wstring &load7zDllName)
 {
-	if (!Load7zDLL())
+	if (!Load7zDLL(load7zDllName))
 		return false;
 	if (archiveFileName.empty() || !createObjectInit() || !findOpenInit(archiveFileName))
 		return false;
@@ -881,9 +879,9 @@ wstring CompressExtract::FindCompressFilePath(const wstring  &filecompresspath, 
 	return filecompressFullpath;
 }
 
-bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring &fileNames)
+bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring &fileNames, const wstring &load7zDllName)
 {
-	if (!Load7zDLL())
+	if (!Load7zDLL(load7zDllName))
 		return false;
 	if (archiveFileName.empty() || fileNames.empty() || !createObjectInit())
 		return false;
