@@ -20,6 +20,8 @@
 #include "../Windows/FileFind.h"
 #include "../Windows/FileDir.h"
 #include "CompExtrAPI.h"
+
+#pragma comment(lib,"Shlwapi.lib")
 using namespace std;
 using namespace NWindows;
 using namespace NFile;
