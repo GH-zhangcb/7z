@@ -1,7 +1,8 @@
 // Windows/FileIO.cpp
 
 #include "StdAfx.h"
-
+#include<string>
+#include <iostream>
 #ifdef SUPPORT_DEVICE_FILE
 #include "..\Common\Alloc.h"
 #endif
@@ -12,7 +13,7 @@
 #ifndef _UNICODE
 extern bool g_IsNT;
 #endif
-
+using namespace std;
 using namespace NWindows;
 using namespace NFile;
 using namespace NName;
@@ -68,6 +69,7 @@ bool CFileBase::Create(CFSTR path, DWORD desiredAccess,
     IF_USE_MAIN_PATH
       _handle = ::CreateFileW(fs2us(path), desiredAccess, shareMode,
         (LPSECURITY_ATTRIBUTES)NULL, creationDisposition, flagsAndAttributes, (HANDLE)NULL);
+	cout<<GetLastError()<<endl;
     #ifdef WIN_LONG_PATH
     if (_handle == INVALID_HANDLE_VALUE && USE_SUPER_PATH)
     {
@@ -78,6 +80,8 @@ bool CFileBase::Create(CFSTR path, DWORD desiredAccess,
     }
     #endif
   }
+  if (_handle == INVALID_HANDLE_VALUE)
+	  cout << "yes" << endl;
   return (_handle != INVALID_HANDLE_VALUE);
 }
 

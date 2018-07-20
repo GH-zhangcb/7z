@@ -21,8 +21,7 @@ private:
 	bool DirectoryPathExit(const wstring &wsDirName, vector<wstring>&filesList);
 	bool GetAllFiles();
 	wstring FindCompressFilePath(const wstring  &filecompresspath, const wstring &filecompressFullpath);
-	wstring string2wstring(const string &str);
-	string wstring2string(const wstring &wstr);
+	
 private:
 	wstring load7zDllName;
 	HMODULE DllHandleName;
