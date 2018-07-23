@@ -69,7 +69,6 @@ bool CFileBase::Create(CFSTR path, DWORD desiredAccess,
     IF_USE_MAIN_PATH
       _handle = ::CreateFileW(fs2us(path), desiredAccess, shareMode,
         (LPSECURITY_ATTRIBUTES)NULL, creationDisposition, flagsAndAttributes, (HANDLE)NULL);
-	cout<<GetLastError()<<endl;
     #ifdef WIN_LONG_PATH
     if (_handle == INVALID_HANDLE_VALUE && USE_SUPER_PATH)
     {
@@ -80,8 +79,6 @@ bool CFileBase::Create(CFSTR path, DWORD desiredAccess,
     }
     #endif
   }
-  if (_handle == INVALID_HANDLE_VALUE)
-	  cout << "yes" << endl;
   return (_handle != INVALID_HANDLE_VALUE);
 }
 

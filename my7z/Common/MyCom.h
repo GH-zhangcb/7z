@@ -17,7 +17,7 @@ public:
   CMyComPtr(): _p(NULL) {}
   CMyComPtr(T* p) throw() { if ((_p = p) != NULL) p->AddRef(); }
   CMyComPtr(const CMyComPtr<T>& lp) throw() { if ((_p = lp._p) != NULL) _p->AddRef(); }
-  ~CMyComPtr() { if (_p) _p->Release(); }
+  ~CMyComPtr() { if (_p) _p->Release();}
   void Release() { if (_p) { _p->Release(); _p = NULL; } }
   operator T*() const {  return (T*)_p;  }
   // T& operator*() const {  return *_p; }

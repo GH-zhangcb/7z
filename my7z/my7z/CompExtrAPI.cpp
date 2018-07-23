@@ -480,13 +480,11 @@ public:
 STDMETHODIMP CArchiveUpdateCallback::SetTotal(UInt64 size)
 {
 	fileSize = size;
-	cout << size << endl;
 	return S_OK;
 }
 
 STDMETHODIMP CArchiveUpdateCallback::SetCompleted(const UInt64 *completeValue )
 {
-
 	if (*completeValue < fileSize&&*completeValue != 0)
 		printf_s("%.2f%% \n",static_cast <float>(*completeValue) / fileSize*100);
 	else if (*completeValue >= fileSize && count == 1)
@@ -541,7 +539,6 @@ HRESULT CArchiveUpdateCallback::Finilize()
 {
 	if (m_NeedBeClosed)
 	{
-		cout << endl;
 		m_NeedBeClosed = false;
 	}
 	return S_OK;
@@ -552,7 +549,7 @@ static void GetStream2(const wchar_t *name)
 	cout<<"Compressing"<<endl;
 	if (name[0] == 0)
 		name = kEmptyFileAlias;
-	wcout<<name<<endl;
+	//wcout<<name<<endl;
 }
 
 STDMETHODIMP CArchiveUpdateCallback::GetStream(UInt32 index, ISequentialInStream **inStream)
@@ -576,7 +573,6 @@ STDMETHODIMP CArchiveUpdateCallback::GetStream(UInt32 index, ISequentialInStream
 			FailedFiles.Add(path);
 			// if (systemError == ERROR_SHARING_VIOLATION)
 			{
-				cout << endl;
 				cout<<"WARNING: can't open file"<<endl;
 				// Print(NError::MyFormatMessageW(systemError));
 				return S_FALSE;
@@ -651,14 +647,22 @@ CompressExtract::CompressExtract()
 	_compressfilePath = {};
 }
 
+CompressExtract::~CompressExtract()
+{
+	if (DllHandleName != NULL)
+	{
+		FreeLibrary(DllHandleName);
+		DllHandleName = NULL;
+	}
+}
+
 bool CompressExtract::Load7zDLL(const wstring &load7zDllName)
 {
 	if (load7zDllName.empty())
 		return false;
 	//加载7z
-	HMODULE load7z = LoadLibrary(load7zDllName.c_str());
-	DllHandleName = load7z;
-	if (!load7z)
+	DllHandleName = LoadLibrary(load7zDllName.c_str());
+	if (!DllHandleName)
 	{
 		cout << "load 7z.dll failed" << endl;
 		return false;
@@ -805,6 +809,10 @@ bool CompressExtract::filePathExist(const wstring &wsfileName, vector<wstring>& 
 			filesList.push_back(wsfileName);
 		} while (FindNextFile(hFile, &fileinfo));
 	}
+	if (!FindClose(hFile))
+	{
+		wcout << "close handle failed" << endl;
+	}
 	return true;
 }
 
@@ -837,7 +845,10 @@ bool CompressExtract::DirectoryPathExit(const wstring &wsDirName, vector<wstring
 	} while (FindNextFile(hFile, &fileinfo));
 	//需将文件夹压进去
 	filesList.push_back(wsDirName);	
-	
+	if (!FindClose(hFile))
+	{
+		wcout << "close handle failed" << endl;
+	}
 	return true;
 }
 
@@ -930,7 +941,7 @@ bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring
 		cout << "Can not get class object" << endl;
 		return false;
 	}
-
+     
 	CArchiveUpdateCallback *updateCallbackSpec = new CArchiveUpdateCallback;
 	CMyComPtr<IArchiveUpdateCallback2> updateCallback(updateCallbackSpec);
 	updateCallbackSpec->Init(&dirItems);
