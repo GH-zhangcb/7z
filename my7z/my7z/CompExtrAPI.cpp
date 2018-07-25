@@ -271,10 +271,10 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index,
 	//	//CreateComplexDir(_directoryPath + us2fs(_filePath.Left(slashPos_back)));
 	//	fullProcessedPath = _directoryPath + us2fs(_filePath.Mid(slashPos_front + 1, slashPos_length - slashPos_front - 1));
 	//	}
- //       else
+    //       else
 	//	{
 	//		fullProcessedPath = _directoryPath + us2fs(_filePath.Mid(slashPos_front + 1, slashPos_length));
- //        }
+   //        }
 
 	FString fullProcessedPath = _directoryPath + us2fs(_filePath);
 	_diskFilePath = fullProcessedPath;
@@ -333,7 +333,7 @@ STDMETHODIMP CArchiveExtractCallback::SetOperationResult(Int32 operationResult)
 	case NArchive::NExtract::NOperationResult::kOK:
 		break;
 	default:
-	{
+	  {
 			   NumErrors++;
 			   cout<<"  :  "<<endl;
 			   const char *s = NULL;
@@ -376,7 +376,7 @@ STDMETHODIMP CArchiveExtractCallback::SetOperationResult(Int32 operationResult)
 				   cout<<"Error #"<<endl;
 				   cout<<temp<<endl;
 			   }
-	}
+	  }
 	}
 
 	if (_outFileStream)
@@ -388,7 +388,6 @@ STDMETHODIMP CArchiveExtractCallback::SetOperationResult(Int32 operationResult)
 	_outFileStream.Release();
 	if (_extractMode && _processedFileInfo.AttribDefined)
 		SetFileAttrib_PosixHighDetect(_diskFilePath, _processedFileInfo.Attrib);
-	cout<<endl;
 	return S_OK;
 }
 
@@ -517,7 +516,6 @@ STDMETHODIMP CArchiveUpdateCallback::GetProperty(UInt32 index, PROPID propID, PR
 		prop.Detach(value);
 		return S_OK;
 	}
-
 	{
 		const CDirItem &dirItem = (*DirItems)[index];
 		switch (propID)
@@ -623,13 +621,13 @@ STDMETHODIMP CArchiveUpdateCallback::CryptoGetTextPassword2(Int32 *passwordIsDef
 {
 	if (!PasswordIsDefined)
 	{
-		if (AskPassword)
+	 if (AskPassword)
 		{
-			// You can ask real password here from user
-			// Password = GetPassword(OutStream);
-			// PasswordIsDefined = true;
-			cout<<"Password is not defined"<<endl;
-			return E_ABORT;
+		  // You can ask real password here from user
+		  // Password = GetPassword(OutStream);
+		  // PasswordIsDefined = true;
+		  cout<<"Password is not defined"<<endl;
+		  return E_ABORT;
 		}
 	}
 	*passwordIsDefined = BoolToInt(PasswordIsDefined);
@@ -640,8 +638,6 @@ STDMETHODIMP CArchiveUpdateCallback::CryptoGetTextPassword2(Int32 *passwordIsDef
 CompressExtract::CompressExtract()
 {
 	DllHandleName = NULL;
-	_createObjectFunc = NULL;
-	_archive = NULL;
 	_filename = {};
 	_allfileList = {};
 	_compressfilePath = {};
@@ -670,8 +666,13 @@ bool CompressExtract::Load7zDLL(const wstring &load7zDllName)
 	return true;
 }
 
-bool CompressExtract::createObjectInit()
+bool CompressExtract::ExtractFile(const wstring &archiveFileName, const wstring &outputPathName, const wstring &load7zDllName)
 {
+	
+	if (!Load7zDLL(load7zDllName))
+		return false;
+	if (archiveFileName.empty() ||outputPathName.empty())
+		return false;
 	//加载7z里面的函数
 	Func_CreateObject createObjectFunc = (Func_CreateObject)GetProcAddress(DllHandleName, "CreateObject");
 	if (!createObjectFunc)
@@ -679,15 +680,10 @@ bool CompressExtract::createObjectInit()
 		cout << "load function: CreatObject failed" << endl;
 		return false;
 	}
-	_createObjectFunc = createObjectFunc;
-	return true;
-}
 
-bool CompressExtract::findOpenInit(const wstring &archiveFileName)
-{
 	FString archiveName = StringToFString(archiveFileName.c_str());
 	CMyComPtr<IInArchive> archive;
-	if (_createObjectFunc(&CLSID_Format, &IID_IInArchive, (void **)&archive) != S_OK)
+	if (createObjectFunc(&CLSID_Format, &IID_IInArchive, (void **)&archive) != S_OK)
 	{
 		cout << "Can not get class object" << endl;
 		return false;
@@ -711,25 +707,15 @@ bool CompressExtract::findOpenInit(const wstring &archiveFileName)
 			cout << "Can not open file as archive" << endl;
 			return false;
 		}
-		_archive = archive;
 	}
-	return true;
-}
-
-bool CompressExtract::ExtractFile(const wstring &archiveFileName, const wstring &outputPathName, const wstring &load7zDllName)
-{
-	if (!Load7zDLL(load7zDllName))
-		return false;
-    if (archiveFileName.empty() || !createObjectInit()||!findOpenInit(archiveFileName))
-		 return false;
 	   //uncompress
 		CArchiveExtractCallback *extractCallbackSpec = new CArchiveExtractCallback;
 		CMyComPtr<IArchiveExtractCallback> extractCallback(extractCallbackSpec);
 		wstring aoutputPathName = outputPathName + L"\\";
 		FString outputPath = StringToFString(aoutputPathName.c_str());//输出的路径
-		extractCallbackSpec->Init(_archive, outputPath);//outputPath必须以"\\"结尾
+		extractCallbackSpec->Init(archive, outputPath);//outputPath必须以"\\"结尾
 		extractCallbackSpec->PasswordIsDefined = false;
-		HRESULT result = _archive->Extract(NULL, (UInt32)(Int32)(-1), false, extractCallback);
+		HRESULT result = archive->Extract(NULL, (UInt32)(Int32)(-1), false, extractCallback);
 		if (result != S_OK)
 		{
 			cout << "Extract Error" << endl;
@@ -740,22 +726,55 @@ bool CompressExtract::ExtractFile(const wstring &archiveFileName, const wstring 
 
 bool CompressExtract::ShowArchivefileList(const wstring &archiveFileName, map<wstring, int> &archivefilelist, const wstring &load7zDllName)
 {
-	if (!Load7zDLL(load7zDllName))
+	if (!Load7zDLL(load7zDllName) || archiveFileName.empty())
 		return false;
-	if (archiveFileName.empty() || !createObjectInit() || !findOpenInit(archiveFileName))
+	//加载7z里面的函数
+	Func_CreateObject createObjectFunc = (Func_CreateObject)GetProcAddress(DllHandleName, "CreateObject");
+	if (!createObjectFunc)
+	{
+		cout << "load function: CreatObject failed" << endl;
 		return false;
+	}
+
+	FString archiveName = StringToFString(archiveFileName.c_str());
+	CMyComPtr<IInArchive> archive;
+	if (createObjectFunc(&CLSID_Format, &IID_IInArchive, (void **)&archive) != S_OK)
+	{
+		cout << "Can not get class object" << endl;
+		return false;
+	}
+	CInFileStream *fileSpec = new CInFileStream;
+	CMyComPtr<IInStream> file = fileSpec;
+	//找不到改文件
+	if (!fileSpec->Open(archiveName))
+	{
+		cout << "Can not open archive file" << endl;
+		return false;
+	}
+	{//open
+		CArchiveOpenCallback *openCallbackSpec = new CArchiveOpenCallback;
+		CMyComPtr<IArchiveOpenCallback> openCallback(openCallbackSpec);
+		openCallbackSpec->PasswordIsDefined = false;
+		const UInt64 scanSize = 1 << 23;
+		//文件虽说找到了，但格式不对，如.rar格式的
+		if (archive->Open(file, &scanSize, openCallback) != S_OK)
+		{
+			cout << "Can not open file as archive" << endl;
+			return false;
+		}
+	}
 	UInt32 numItems = 0;
-	_archive->GetNumberOfItems(&numItems);
+	archive->GetNumberOfItems(&numItems);
 	for (UInt32 i = 0; i < numItems; i++)
 	{
 		// Get uncompressed size of file
 		NCOM::CPropVariant prop;
-		_archive->GetProperty(i, kpidSize, &prop);
+		archive->GetProperty(i, kpidSize, &prop);
 		char s[32];//之前是char
 		ConvertPropVariantToShortString(prop, s);//s为文件的大小	
 		// Get name of file
 		//NCOM::CPropVariant prop;
-		_archive->GetProperty(i, kpidPath, &prop);
+		archive->GetProperty(i, kpidPath, &prop);
 		if (prop.vt == VT_BSTR)
 		{
 			archivefilelist.insert(make_pair(prop.bstrVal,atoi(s)));
@@ -892,10 +911,20 @@ wstring CompressExtract::FindCompressFilePath(const wstring  &filecompresspath, 
 
 bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring &fileNames, const wstring &load7zDllName)
 {
+
+	if (archiveFileName.empty() || fileNames.empty())
+		return false;
+
 	if (!Load7zDLL(load7zDllName))
 		return false;
-	if (archiveFileName.empty() || fileNames.empty() || !createObjectInit())
+	//加载7z里面的函数
+	Func_CreateObject createObjectFunc = (Func_CreateObject)GetProcAddress(DllHandleName, "CreateObject");
+	if (!createObjectFunc)
+	{
+		cout << "load function: CreatObject failed" << endl;
 		return false;
+	}
+
 	FString archiveName = StringToFString(archiveFileName.c_str());
 	FileStringSepar(fileNames);
 	if (!GetAllFiles())
@@ -934,9 +963,8 @@ bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring
 		cout << "can't create archive file" << endl;
 		return false;
 	}
-
 	CMyComPtr<IOutArchive> outArchive;
-	if (_createObjectFunc(&CLSID_Format, &IID_IOutArchive, (void **)&outArchive) != S_OK)
+	if (createObjectFunc(&CLSID_Format, &IID_IOutArchive, (void **)&outArchive) != S_OK)
 	{
 		cout << "Can not get class object" << endl;
 		return false;
@@ -945,7 +973,7 @@ bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring
 	CArchiveUpdateCallback *updateCallbackSpec = new CArchiveUpdateCallback;
 	CMyComPtr<IArchiveUpdateCallback2> updateCallback(updateCallbackSpec);
 	updateCallbackSpec->Init(&dirItems);
-
+	
 	HRESULT result = outArchive->UpdateItems(outFileStream, dirItems.Size(), updateCallback);//压缩
 	updateCallbackSpec->Finilize();
 	if (result != S_OK)
