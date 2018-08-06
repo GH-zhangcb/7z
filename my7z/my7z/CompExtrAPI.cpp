@@ -169,14 +169,18 @@ void CArchiveExtractCallback::Init(IInArchive *archiveHandler, const FString &di
 	NName::NormalizeDirPathPrefix(_directoryPath);
 }
 
+UInt64 eFullSize;
+UInt64 eCompleteSize;
 STDMETHODIMP CArchiveExtractCallback::SetTotal(UInt64 size )
 {
+	eFullSize = size;
 	efileSize = size;
 	return S_OK;
 }
 
 STDMETHODIMP CArchiveExtractCallback::SetCompleted(const UInt64 *completeValue)
 {
+	eCompleteSize=*completeValue;
 	if (*completeValue < efileSize&&*completeValue != 0)
 		printf_s("%.2f%% \n", static_cast <float>(*completeValue) / efileSize * 100);
 	else if (*completeValue >= efileSize && count == 1)
@@ -187,6 +191,11 @@ STDMETHODIMP CArchiveExtractCallback::SetCompleted(const UInt64 *completeValue)
 	return S_OK;
 }
 
+void CompressExtract::eGetFullandCompleteSize()
+{
+	_eFullSize = eFullSize;
+	_eCompleteSize = eCompleteSize;
+}
 
 STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index,
 	ISequentialOutStream **outStream, Int32 askExtractMode)
@@ -455,7 +464,6 @@ public:
 	bool PasswordIsDefined;
 	UString Password;
 	bool AskPassword;
-
 	bool m_NeedBeClosed;
 
 	FStringVector FailedFiles;
@@ -476,24 +484,35 @@ public:
 	}
 };
 
+UInt64 cFullSize;
 STDMETHODIMP CArchiveUpdateCallback::SetTotal(UInt64 size)
 {
+	cFullSize = size;
 	fileSize = size;
 	return S_OK;
 }
 
+UInt64 cCompleteSize;
+
 STDMETHODIMP CArchiveUpdateCallback::SetCompleted(const UInt64 *completeValue )
 {
-	if (*completeValue < fileSize&&*completeValue != 0)
+	cCompleteSize = *completeValue;
+	//cout << "setcompleted: " << CompleteSize<< endl;
+	if (*completeValue < fileSize)
 		printf_s("%.2f%% \n",static_cast <float>(*completeValue) / fileSize*100);
 	else if (*completeValue >= fileSize && count == 1)
 	{
 		wcout << "100.00%" << endl;
 		count++;
-	}
+	}	
 	return S_OK;
 }
 
+void CompressExtract::cGetFullandCompleteSize()
+{
+	_cFullSize = cFullSize;
+	_cCompleteSize = cCompleteSize;
+}
 STDMETHODIMP CArchiveUpdateCallback::GetUpdateItemInfo(UInt32 /* index */,
 	Int32 *newData, Int32 *newProperties, UInt32 *indexInArchive)
 {
