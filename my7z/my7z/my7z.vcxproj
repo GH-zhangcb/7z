@@ -16,7 +16,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -76,18 +76,17 @@
     <ClCompile Include="..\Windows\PropVariant.cpp" />
     <ClCompile Include="..\Windows\PropVariantConv.cpp" />
     <ClCompile Include="CompExtrAPI.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\7zTypes.h" />
     <ClInclude Include="..\Common\Common.h" />
-    <ClInclude Include="..\Common\Compiler.h" />
     <ClInclude Include="..\Common\CpuArch.h" />
     <ClInclude Include="..\Common\Defs.h" />
     <ClInclude Include="..\Common\FileStreams.h" />
     <ClInclude Include="..\Common\iarchive.h" />
     <ClInclude Include="..\Common\IDecl.h" />
     <ClInclude Include="..\Common\IntToString.h" />
-    <ClInclude Include="..\Common\IPassword.h" />
     <ClInclude Include="..\Common\IProgress.h" />
     <ClInclude Include="..\Common\IStream.h" />
     <ClInclude Include="..\Common\MyBuffer.h" />
@@ -95,7 +94,6 @@
     <ClInclude Include="..\Common\MyString.h" />
     <ClInclude Include="..\Common\MyTypes.h" />
     <ClInclude Include="..\Common\MyVector.h" />
-    <ClInclude Include="..\Common\MyWindows.h" />
     <ClInclude Include="..\Common\NewHandler.h" />
     <ClInclude Include="..\Common\PropID.h" />
     <ClInclude Include="..\Common\StdAfx.h" />
@@ -105,7 +103,6 @@
     <ClInclude Include="..\Windows\FileFind.h" />
     <ClInclude Include="..\Windows\FileIO.h" />
     <ClInclude Include="..\Windows\FileName.h" />
-    <ClInclude Include="..\Windows\NtCheck.h" />
     <ClInclude Include="..\Windows\PropVariant.h" />
     <ClInclude Include="..\Windows\PropVariantConv.h" />
     <ClInclude Include="..\Windows\StdAfx.h" />

@@ -4,8 +4,8 @@
 #define __ISTREAM_H
 
 #include "MyTypes.h"
-#include "MyWindows.h"
-
+//#include "MyWindows.h"
+#include <windows.h>
 #include "IDecl.h"
 
 #define STREAM_INTERFACE_SUB(i, base, x) DECL_INTERFACE_SUB(i, base, 3, x)

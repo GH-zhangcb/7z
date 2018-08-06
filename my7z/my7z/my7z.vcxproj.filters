@@ -21,9 +21,6 @@
     <ClCompile Include="..\Common\MyString.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\IntToString.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="..\Windows\FileIO.cpp">
       <Filter>Windows</Filter>
     </ClCompile>
@@ -48,15 +45,18 @@
     <ClCompile Include="..\Windows\FileName.cpp">
       <Filter>Windows</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\IntToString.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\Common.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\7zTypes.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\Compiler.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\Defs.h">
@@ -69,12 +69,6 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\IDecl.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\IntToString.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\IPassword.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\IStream.h">
@@ -96,9 +90,6 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\MyVector.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\MyWindows.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\NewHandler.h">
@@ -125,9 +116,6 @@
     <ClInclude Include="..\Windows\FileName.h">
       <Filter>Windows</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\NtCheck.h">
-      <Filter>Windows</Filter>
-    </ClInclude>
     <ClInclude Include="..\Windows\PropVariant.h">
       <Filter>Windows</Filter>
     </ClInclude>
@@ -147,6 +135,9 @@
       <Filter>Windows</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\StdAfx.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\IntToString.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>

@@ -11,8 +11,7 @@
 #include "../Common/MyCom.h"
 #include "../Common/iarchive.h"
 #include "../Common/FileStreams.h"
-#include "../Windows/NtCheck.h"
-#include "../Common/IPassword.h"
+//#include "../Windows/NtCheck.h"
 #include "../Windows/FileName.h"
 #include "../Windows/PropVariant.h"
 #include "../Windows/PropVariantConv.h"
@@ -57,22 +56,14 @@ static HRESULT IsArchiveItemFolder(IInArchive *archive, UInt32 index, bool &resu
 
 ////////////////////////////////////////////////////////////////////
 class CArchiveOpenCallback :
-	public IArchiveOpenCallback,
-	public ICryptoGetTextPassword,
-	public CMyUnknownImp
+	public IArchiveOpenCallback
 {
 public:
-	MY_UNKNOWN_IMP1(ICryptoGetTextPassword)
-
-		STDMETHOD(SetTotal)(const UInt64 *files, const UInt64 *bytes);
+	STDMETHOD(SetTotal)(const UInt64 *files, const UInt64 *bytes);
 	STDMETHOD(SetCompleted)(const UInt64 *files, const UInt64 *bytes);
-
-	STDMETHOD(CryptoGetTextPassword)(BSTR *password);
-
-	bool PasswordIsDefined;
-	UString Password;
-
-	CArchiveOpenCallback() : PasswordIsDefined(false) {}
+	STDMETHOD(QueryInterface)(const IID & iid, void **ppvObject){ return 0; };
+	ULONG __stdcall AddRef(){ return 0; };
+	ULONG __stdcall Release(){ return 0; };
 };
 //定义OPEN
 STDMETHODIMP CArchiveOpenCallback::SetTotal(const UInt64 * /* files */, const UInt64 * /* bytes */)
@@ -84,20 +75,6 @@ STDMETHODIMP CArchiveOpenCallback::SetCompleted(const UInt64 * /* files */, cons
 {
 	return S_OK;
 }
-
-STDMETHODIMP CArchiveOpenCallback::CryptoGetTextPassword(BSTR *password)
-{
-	if (!PasswordIsDefined)
-	{
-		// You can ask real password here from user
-		// Password = GetPassword(OutStream);
-		// PasswordIsDefined = true;
-		cout<<"Password is not defined"<<endl;
-		return E_ABORT;
-	}
-	return StringToBstr(Password, password);
-}
-
 
 static const wchar_t * const kEmptyFileAlias = L"[Content]";
 static const char * const kTestingString = "Testing     ";
@@ -113,15 +90,11 @@ static const char * const kIsNotArc = "Is not archive";
 static const char * const kHeadersError = "Headers Error";
 //////////////////////////////////////////////////////////////
 class CArchiveExtractCallback :
-	public IArchiveExtractCallback,
-	public ICryptoGetTextPassword,
-	public CMyUnknownImp
+	public IArchiveExtractCallback
 {
 public:
-	MY_UNKNOWN_IMP1(ICryptoGetTextPassword)
-
-		// IProgress
-		STDMETHOD(SetTotal)(UInt64 size);
+	// IProgress
+	STDMETHOD(SetTotal)(UInt64 size);
 	STDMETHOD(SetCompleted)(const UInt64 *completeValue);
 
 	// IArchiveExtractCallback
@@ -129,8 +102,9 @@ public:
 	STDMETHOD(PrepareOperation)(Int32 askExtractMode);
 	STDMETHOD(SetOperationResult)(Int32 resultEOperationResult);
 
-	// ICryptoGetTextPassword
-	STDMETHOD(CryptoGetTextPassword)(BSTR *aPassword);
+	STDMETHOD(QueryInterface)(const IID & iid, void **ppvObject){ return 0; };
+	ULONG __stdcall AddRef(){ return 0; };
+	ULONG __stdcall Release(){ return 0; };
 
 private:
 	CMyComPtr<IInArchive> _archiveHandler;
@@ -149,15 +123,12 @@ private:
 
 	COutFileStream *_outFileStreamSpec;
 	CMyComPtr<ISequentialOutStream> _outFileStream;
-
 public:
 	void Init(IInArchive *archiveHandler, const FString &directoryPath);
 
 	UInt64 NumErrors;
 	bool PasswordIsDefined;
 	UString Password;
-	UInt64 efileSize;
-	size_t count = 1;
 	CArchiveExtractCallback() : PasswordIsDefined(false) {}
 };
 
@@ -174,20 +145,12 @@ UInt64 eCompleteSize;
 STDMETHODIMP CArchiveExtractCallback::SetTotal(UInt64 size )
 {
 	eFullSize = size;
-	efileSize = size;
 	return S_OK;
 }
 
 STDMETHODIMP CArchiveExtractCallback::SetCompleted(const UInt64 *completeValue)
 {
 	eCompleteSize=*completeValue;
-	if (*completeValue < efileSize&&*completeValue != 0)
-		printf_s("%.2f%% \n", static_cast <float>(*completeValue) / efileSize * 100);
-	else if (*completeValue >= efileSize && count == 1)
-	{
-		wcout << "100.00%" << endl;
-		count++;
-	}
 	return S_OK;
 }
 
@@ -400,21 +363,6 @@ STDMETHODIMP CArchiveExtractCallback::SetOperationResult(Int32 operationResult)
 	return S_OK;
 }
 
-STDMETHODIMP CArchiveExtractCallback::CryptoGetTextPassword(BSTR *password)
-{
-	if (!PasswordIsDefined)
-	{
-		// You can ask real password here from user
-		// Password = GetPassword(OutStream);
-		// PasswordIsDefined = true;
-		cout<<"Password is not defined"<<endl;
-		return E_ABORT;
-	}
-	return StringToBstr(Password, password);
-}
-
-
-
 /////////////////////////////////////////////////////////
 //打包
 struct CDirItem
@@ -431,27 +379,24 @@ struct CDirItem
 };//
 
 class CArchiveUpdateCallback :
-	public IArchiveUpdateCallback2,
-	public ICryptoGetTextPassword2,
-	public CMyUnknownImp
+	public IArchiveUpdateCallback2
 {
 public:
-	MY_UNKNOWN_IMP2(IArchiveUpdateCallback2, ICryptoGetTextPassword2)
-
 		// IProgress
-		STDMETHOD(SetTotal)(UInt64 size);
+	STDMETHOD(SetTotal)(UInt64 size);
 	STDMETHOD(SetCompleted)(const UInt64 *completeValue);
 
 	// IUpdateCallback2
 	STDMETHOD(GetUpdateItemInfo)(UInt32 index,
-		Int32 *newData, Int32 *newProperties, UInt32 *indexInArchive);
+	Int32 *newData, Int32 *newProperties, UInt32 *indexInArchive);
 	STDMETHOD(GetProperty)(UInt32 index, PROPID propID, PROPVARIANT *value);
 	STDMETHOD(GetStream)(UInt32 index, ISequentialInStream **inStream);
 	STDMETHOD(SetOperationResult)(Int32 operationResult);
 	STDMETHOD(GetVolumeSize)(UInt32 index, UInt64 *size);
 	STDMETHOD(GetVolumeStream)(UInt32 index, ISequentialOutStream **volumeStream);
-
-	STDMETHOD(CryptoGetTextPassword2)(Int32 *passwordIsDefined, BSTR *password);
+	STDMETHOD(QueryInterface)(const IID & iid, void **ppvObject){ return 0; };
+	ULONG __stdcall AddRef(){ return 0; };
+	ULONG __stdcall Release(){ return 0; };
 
 public:
 	CRecordVector<UInt64> VolumesSizes;
@@ -468,8 +413,6 @@ public:
 
 	FStringVector FailedFiles;
 	CRecordVector<HRESULT> FailedCodes;
-	UInt64 fileSize;//文件总字节数
-	size_t count = 1;//全部压缩成功时,输出一次100%
 	CArchiveUpdateCallback() : PasswordIsDefined(false), AskPassword(false), DirItems(0) {};
 
 	~CArchiveUpdateCallback() { Finilize(); }
@@ -488,7 +431,6 @@ UInt64 cFullSize;
 STDMETHODIMP CArchiveUpdateCallback::SetTotal(UInt64 size)
 {
 	cFullSize = size;
-	fileSize = size;
 	return S_OK;
 }
 
@@ -496,15 +438,7 @@ UInt64 cCompleteSize;
 
 STDMETHODIMP CArchiveUpdateCallback::SetCompleted(const UInt64 *completeValue )
 {
-	cCompleteSize = *completeValue;
-	//cout << "setcompleted: " << CompleteSize<< endl;
-	if (*completeValue < fileSize)
-		printf_s("%.2f%% \n",static_cast <float>(*completeValue) / fileSize*100);
-	else if (*completeValue >= fileSize && count == 1)
-	{
-		wcout << "100.00%" << endl;
-		count++;
-	}	
+	cCompleteSize = *completeValue;	
 	return S_OK;
 }
 
@@ -636,23 +570,6 @@ STDMETHODIMP CArchiveUpdateCallback::GetVolumeStream(UInt32 index, ISequentialOu
 	return S_OK;
 }
 
-STDMETHODIMP CArchiveUpdateCallback::CryptoGetTextPassword2(Int32 *passwordIsDefined, BSTR *password)
-{
-	if (!PasswordIsDefined)
-	{
-	 if (AskPassword)
-		{
-		  // You can ask real password here from user
-		  // Password = GetPassword(OutStream);
-		  // PasswordIsDefined = true;
-		  cout<<"Password is not defined"<<endl;
-		  return E_ABORT;
-		}
-	}
-	*passwordIsDefined = BoolToInt(PasswordIsDefined);
-	return StringToBstr(Password, password);
-}
-
 ///////////////////////////主函数////////////////////////
 CompressExtract::CompressExtract()
 {
@@ -709,7 +626,7 @@ bool CompressExtract::ExtractFile(const wstring &archiveFileName, const wstring 
 	}
 	CInFileStream *fileSpec = new CInFileStream;
 	CMyComPtr<IInStream> file = fileSpec;
-	//找不到改文件
+	//找不到该文件
 	if (!fileSpec->Open(archiveName))
 	{
 		cout << "Can not open archive file" << endl;
@@ -718,7 +635,7 @@ bool CompressExtract::ExtractFile(const wstring &archiveFileName, const wstring 
 	{//open
 		CArchiveOpenCallback *openCallbackSpec = new CArchiveOpenCallback;
 		CMyComPtr<IArchiveOpenCallback> openCallback(openCallbackSpec);
-		openCallbackSpec->PasswordIsDefined = false;
+		
 		const UInt64 scanSize = 1 << 23;
 		//文件虽说找到了，但格式不对，如.rar格式的
 		if (archive->Open(file, &scanSize, openCallback) != S_OK)
@@ -773,7 +690,7 @@ bool CompressExtract::ShowArchivefileList(const wstring &archiveFileName, map<ws
 	{//open
 		CArchiveOpenCallback *openCallbackSpec = new CArchiveOpenCallback;
 		CMyComPtr<IArchiveOpenCallback> openCallback(openCallbackSpec);
-		openCallbackSpec->PasswordIsDefined = false;
+		
 		const UInt64 scanSize = 1 << 23;
 		//文件虽说找到了，但格式不对，如.rar格式的
 		if (archive->Open(file, &scanSize, openCallback) != S_OK)

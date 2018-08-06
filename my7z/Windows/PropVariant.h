@@ -4,7 +4,8 @@
 #define __WINDOWS_PROP_VARIANT_H
 
 #include "../Common/MyTypes.h"
-#include "../Common/MyWindows.h"
+//#include "../Common/MyWindows.h"
+#include <windows.h>
 #include "../Common/MyString.h"
 
 namespace NWindows {

@@ -5,27 +5,27 @@
 #include <windows.h>
 
 
-
-DWORD WINAPI thread_complete(LPVOID lpParamter)
-{
-	int count = 0;
-	CompressExtract aa;
-	unsigned long long PreComplete = -1;
-	while (true)
-	{
-		Sleep(300);
-		cout << count++ << endl;
-		aa.cGetFullandCompleteSize();
-		cout << "Full:" << aa._cFullSize << endl;
-		cout << "Complete:" << aa._cCompleteSize << endl;
-		if (aa._cFullSize == aa._cCompleteSize&&aa._cCompleteSize != 0)
-		{
-			break;
-		}
-	}
-	
-	return 0;
-}
+//
+//DWORD WINAPI thread_complete(LPVOID lpParamter)
+//{
+//	int count = 0;
+//	CompressExtract aa;
+//	unsigned long long PreComplete = -1;
+//	while (true)
+//	{
+//		Sleep(300);
+//		cout << count++ << endl;
+//		aa.cGetFullandCompleteSize();
+//		cout << "Full:" << aa._cFullSize << endl;
+//		cout << "Complete:" << aa._cCompleteSize << endl;
+//		if (aa._cFullSize == aa._cCompleteSize&&aa._cCompleteSize != 0)
+//		{
+//			break;
+//		}
+//	}
+//	
+//	return 0;
+//}
 
 int main()
 {
@@ -37,7 +37,9 @@ int main()
 
 	 CompressExtract aa;
 
-	 aa.CompressFile(L"D:\\1.7z", L"D:\\1", L".\\7z.dll");
+	// aa.CompressFile(L"D:\\1.7z", L"D:\\1", L".\\7z.dll");
+	 aa.ExtractFile(L"D:\\1.7z",L"C:\\abc", L".\\7z.dll");
+
 	return 0;
 }
 

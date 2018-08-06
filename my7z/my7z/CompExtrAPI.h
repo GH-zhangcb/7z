@@ -7,10 +7,7 @@ using namespace std;
 
 
 
-class Progress
-{
 
-};
 
 class CompressExtract
 {

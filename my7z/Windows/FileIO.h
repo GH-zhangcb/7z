@@ -3,8 +3,8 @@
 #ifndef __WINDOWS_FILE_IO_H
 #define __WINDOWS_FILE_IO_H
 
-#include "../Common/MyWindows.h"
-
+//#include "../Common/MyWindows.h"
+#include <windows.h>
 #if defined(_WIN32) && !defined(UNDER_CE)
 #include <winioctl.h>
 #endif

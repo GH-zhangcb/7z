@@ -6,7 +6,8 @@
 #ifndef __MY_UNKNOWN_H
 #define __MY_UNKNOWN_H
 
-#include "MyWindows.h"
+//#include "MyWindows.h"
+#include <windows.h>
 #endif
 #define k_7zip_GUID_Data1 0x23170F69
 #define k_7zip_GUID_Data2 0x40C1
