@@ -80,7 +80,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\7zTypes.h" />
-    <ClInclude Include="..\Common\Common.h" />
     <ClInclude Include="..\Common\CpuArch.h" />
     <ClInclude Include="..\Common\Defs.h" />
     <ClInclude Include="..\Common\FileStreams.h" />
@@ -94,9 +93,7 @@
     <ClInclude Include="..\Common\MyString.h" />
     <ClInclude Include="..\Common\MyTypes.h" />
     <ClInclude Include="..\Common\MyVector.h" />
-    <ClInclude Include="..\Common\NewHandler.h" />
     <ClInclude Include="..\Common\PropID.h" />
-    <ClInclude Include="..\Common\StdAfx.h" />
     <ClInclude Include="..\Common\StringConvert.h" />
     <ClInclude Include="..\Windows\Defs.h" />
     <ClInclude Include="..\Windows\FileDir.h" />
@@ -105,7 +102,6 @@
     <ClInclude Include="..\Windows\FileName.h" />
     <ClInclude Include="..\Windows\PropVariant.h" />
     <ClInclude Include="..\Windows\PropVariantConv.h" />
-    <ClInclude Include="..\Windows\StdAfx.h" />
     <ClInclude Include="CompExtrAPI.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>

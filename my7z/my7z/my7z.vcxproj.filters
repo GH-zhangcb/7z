@@ -53,9 +53,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Common\Common.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="..\Common\7zTypes.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -90,9 +87,6 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\MyVector.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\NewHandler.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\PropID.h">
@@ -130,12 +124,6 @@
     </ClInclude>
     <ClInclude Include="StdAfx.h">
       <Filter>源文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Windows\StdAfx.h">
-      <Filter>Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\StdAfx.h">
-      <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\IntToString.h">
       <Filter>Common</Filter>
