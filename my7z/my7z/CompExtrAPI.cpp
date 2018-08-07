@@ -731,7 +731,7 @@ void CompressExtract::FileStringSepar(const wstring &fileNames)
 	wstring cstr = L"";
 	for (int i = 0; (size_t)i < fileNames.size(); i++)
 	{
-		if (fileNames[i] == '/')//以'/'分开，最后一个以长度分开
+		if (fileNames[i] == '|')//以'/'分开，最后一个以长度分开
 		{
 			wstring cstr = fileNames.substr(start, i - start);
 			filename.push_back(cstr);
@@ -835,7 +835,10 @@ wstring CompressExtract::FindCompressFilePath(const wstring  &filecompresspath, 
 {
 	if (filecompresspath.empty() || filecompressFullpath.empty())
 		return L"";
-	size_t Fpoint = filecompresspath.rfind(L"\\");
+	size_t Fpoint=0;
+	size_t Fpoint_2 = filecompresspath.rfind(L"\\");//取出文件名
+	size_t Fpoint_1 = filecompresspath.rfind(L"/");
+	Fpoint= Fpoint_2 > Fpoint ? Fpoint_1 : Fpoint_2;
 	if (Fpoint != string::npos)
 	{
 		wstring temp = filecompresspath.substr(Fpoint + 1);

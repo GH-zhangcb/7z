@@ -37,8 +37,8 @@ int main()
 
 	 CompressExtract aa;
 
-	// aa.CompressFile(L"D:\\1.7z", L"D:\\1", L".\\7z.dll");
-	 aa.ExtractFile(L"D:\\1.7z",L"C:\\abc", L".\\7z.dll");
+	 aa.CompressFile(L"D:/1.7z", L"D:/1", L"./7z.dll");
+	// aa.ExtractFile(L"D:\\1.7z",L"C:\\abc", L".\\7z.dll");
 
 	return 0;
 }
