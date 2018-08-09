@@ -497,7 +497,7 @@ HRESULT CArchiveUpdateCallback::Finilize()
 
 static void GetStream2(const wchar_t *name)
 {
-	cout<<"Compressing"<<endl;
+	//cout<<"Compressing"<<endl;
 	if (name[0] == 0)
 		name = kEmptyFileAlias;
 	//wcout<<name<<endl;
@@ -816,6 +816,11 @@ bool CompressExtract::GetAllFiles()
 			return false;
 		WIN32_FIND_DATA fileinfo;
 		HANDLE hFile = FindFirstFile(_filename[i].c_str(), &fileinfo);
+		if (hFile == INVALID_HANDLE_VALUE)
+		{
+			wcout << "Can't find file: " << _filename[i]<< endl;
+			return false;
+		}
 		if (fileinfo.dwFileAttributes &FILE_ATTRIBUTE_DIRECTORY)
 			//得到文件夹下所有的文件
 			DirectoryPathExit(_filename[i], _allfileList);	
@@ -827,7 +832,12 @@ bool CompressExtract::GetAllFiles()
 			wstring strtemp = FindCompressFilePath(_filename[i], _allfileList[star]);
 			_compressfilePath.push_back(strtemp);
 		}
+		if (!FindClose(hFile))
+		{
+			wcout << "close handle failed" << endl;
+		}
 	}
+
 	return true;
 }
 
@@ -879,11 +889,12 @@ bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring
 			CDirItem di;
 			FString name = StringToFString(_allfileList[i].c_str());//文件名
 			NFind::CFileInfo fi;
-			if (!fi.Find(name))
+			//在此之前(获取压缩文件时)已经判断过文件是否存在，所以不需要再次判断
+			/*if (!fi.Find(name))
 			{
 				wcout << "Can't find file:" << name << endl;
 				return false;
-			}
+			}*/
 			di.Attrib = fi.Attrib;
 			di.Size = fi.Size;
 			di.CTime = fi.CTime;
