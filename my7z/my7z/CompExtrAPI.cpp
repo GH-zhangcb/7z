@@ -12,19 +12,19 @@
 #include "../Common/iarchive.h"
 #include "../Common/FileStreams.h"
 //#include "../Windows/NtCheck.h"
-#include "../Windows/FileName.h"
+//#include "../Windows/FileName.h"
 #include "../Windows/PropVariant.h"
 #include "../Windows/PropVariantConv.h"
 #include "../Common/IntToString.h"
-#include "../Windows/FileFind.h"
-#include "../Windows/FileDir.h"
+//#include "../Windows/FileFind.h"
+//#include "../Windows/FileDir.h"
 #include "CompExtrAPI.h"
 
 #pragma comment(lib,"Shlwapi.lib")
 using namespace std;
 using namespace NWindows;
-using namespace NFile;
-using namespace NDir;
+//using namespace NFile;
+//using namespace NDir;
 
 DEFINE_GUID(CLSID_CFormat7z,
 	0x23170F69, 0x40C1, 0x278A, 0x10, 0x00, 0x00, 0x01, 0x10, 0x07, 0x00, 0x00);
@@ -137,7 +137,7 @@ void CArchiveExtractCallback::Init(IInArchive *archiveHandler, const FString &di
 	NumErrors = 0;
 	_archiveHandler = archiveHandler;
 	_directoryPath = directoryPath;
-	NName::NormalizeDirPathPrefix(_directoryPath);
+	//NName::NormalizeDirPathPrefix(_directoryPath);//h好像没用 需验证 确保以‘\\’结尾
 }
 
 UInt64 eFullSize;
@@ -251,18 +251,44 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index,
 	FString fullProcessedPath = _directoryPath + us2fs(_filePath);
 	_diskFilePath = fullProcessedPath;
 
+	//if (_processedFileInfo.isDir)//是为了建立输出路径，即建立文件夹，所以在压缩时需要将文件夹压缩进去(否则找不到路径)
+	//{
+	//	CreateComplexDir(fullProcessedPath);
+	//}
+	//else
+	//{
+	//	NFind::CFileInfo fi;
+	//	if (fi.Find(fullProcessedPath))
+	//	{
+	//		if (!DeleteFileAlways(fullProcessedPath))//覆盖已存在文件
+	//		{
+	//			cout << "Can not delete output file" << endl; 
+	//			return E_ABORT;
+	//		}
+	//	}
+
+
 	if (_processedFileInfo.isDir)//是为了建立输出路径，即建立文件夹，所以在压缩时需要将文件夹压缩进去(否则找不到路径)
 	{
-		CreateComplexDir(fullProcessedPath);
+		DWORD attrib = GetFileAttributes(fullProcessedPath);//创建目录
+		if (attrib == INVALID_FILE_ATTRIBUTES ||(attrib & FILE_ATTRIBUTE_DIRECTORY)== 0)
+		{
+			if (!CreateDirectoryW(fullProcessedPath, NULL))
+			{
+				cout << "Create ExtractDirectory failed" << endl;
+				return false;
+			}
+		}		
 	}
 	else
 	{
-		NFind::CFileInfo fi;
-		if (fi.Find(fullProcessedPath))
+		WIN32_FIND_DATA fileinfo;
+		HANDLE hFile = FindFirstFile(fullProcessedPath, &fileinfo);
+		if (hFile != INVALID_HANDLE_VALUE)
 		{
-			if (!DeleteFileAlways(fullProcessedPath))
+			if (!DeleteFileW(fullProcessedPath))//覆盖已存在文件
 			{
-				cout << "Can not delete output file" << endl; 
+				cout << "Can not delete output file" << endl;
 				return E_ABORT;
 			}
 		}
@@ -359,7 +385,13 @@ STDMETHODIMP CArchiveExtractCallback::SetOperationResult(Int32 operationResult)
 	}
 	_outFileStream.Release();
 	if (_extractMode && _processedFileInfo.AttribDefined)
-		SetFileAttrib_PosixHighDetect(_diskFilePath, _processedFileInfo.Attrib);
+	{
+         //SetFileAttrib_PosixHighDetect(_diskFilePath, _processedFileInfo.Attrib);
+		if ((_processedFileInfo.Attrib & 0xF0000000) != 0)
+			_processedFileInfo.Attrib &= 0x3FFF;
+		SetFileAttributesW(_diskFilePath, _processedFileInfo.Attrib);
+	}
+		
 	return S_OK;
 }
 
@@ -848,7 +880,7 @@ wstring CompressExtract::FindCompressFilePath(const wstring  &filecompresspath, 
 	size_t Fpoint=0;
 	size_t Fpoint_2 = filecompresspath.rfind(L"\\");//取出文件名
 	size_t Fpoint_1 = filecompresspath.rfind(L"/");
-	Fpoint= Fpoint_2 > Fpoint ? Fpoint_1 : Fpoint_2;
+	Fpoint= Fpoint_2 > Fpoint_1 ? Fpoint_1 : Fpoint_2;
 	if (Fpoint != string::npos)
 	{
 		wstring temp = filecompresspath.substr(Fpoint + 1);
@@ -884,26 +916,46 @@ bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring
 	CObjectVector<CDirItem> dirItems;
 	{
 		size_t i;
+		//for (i = 0; i < _allfileList.size(); i++)
+		//{
+		//	CDirItem di;
+		//	FString name = StringToFString(_allfileList[i].c_str());//文件名
+		//	NFind::CFileInfo fi;
+		//	if (!fi.Find(name))
+		//	{
+		//		wcout << "Can't find file:" << name << endl;
+		//		return false;
+		//	}
+		//	di.Attrib = fi.Attrib;
+		//	di.Size = fi.Size;
+		//	di.CTime = fi.CTime;
+		//	di.ATime = fi.ATime;
+		//	di.MTime = fi.MTime;
+		//	di.Name = fs2us(StringToFString(_compressfilePath[i].c_str()));//注：name是文件的名称，会把name字符串全部压缩，所以name若带路径，则连路径也一块压缩进去
+		//	di.FullPath = name;//fullPath是文件所在的全路径
+		//	dirItems.Add(di);
+		//}
 		for (i = 0; i < _allfileList.size(); i++)
 		{
 			CDirItem di;
 			FString name = StringToFString(_allfileList[i].c_str());//文件名
-			NFind::CFileInfo fi;
-			//在此之前(获取压缩文件时)已经判断过文件是否存在，所以不需要再次判断
-			/*if (!fi.Find(name))
+			WIN32_FIND_DATA fileinfo;
+			HANDLE hFile = FindFirstFile(_allfileList[i].c_str(), &fileinfo);
+			if (hFile == INVALID_HANDLE_VALUE)
 			{
-				wcout << "Can't find file:" << name << endl;
+				cout << "Cant't find file" << endl;
 				return false;
-			}*/
-			di.Attrib = fi.Attrib;
-			di.Size = fi.Size;
-			di.CTime = fi.CTime;
-			di.ATime = fi.ATime;
-			di.MTime = fi.MTime;
+			}
+			di.Attrib = fileinfo.dwFileAttributes;
+			di.Size = (((UInt64)fileinfo.nFileSizeHigh) << 32) + fileinfo.nFileSizeLow;
+			di.CTime = fileinfo.ftCreationTime;
+			di.ATime = fileinfo.ftLastAccessTime;
+			di.MTime = fileinfo.ftLastWriteTime;
 			di.Name = fs2us(StringToFString(_compressfilePath[i].c_str()));//注：name是文件的名称，会把name字符串全部压缩，所以name若带路径，则连路径也一块压缩进去
 			di.FullPath = name;//fullPath是文件所在的全路径
 			dirItems.Add(di);
 		}
+		
 	}
 
 	COutFileStream *outFileStreamSpec = new COutFileStream;

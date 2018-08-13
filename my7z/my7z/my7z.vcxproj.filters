@@ -21,29 +21,14 @@
     <ClCompile Include="..\Common\MyString.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\FileIO.cpp">
-      <Filter>Windows</Filter>
-    </ClCompile>
     <ClCompile Include="..\Windows\PropVariant.cpp">
       <Filter>Windows</Filter>
     </ClCompile>
     <ClCompile Include="..\Windows\PropVariantConv.cpp">
       <Filter>Windows</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\FileDir.cpp">
-      <Filter>Windows</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Windows\FileFind.cpp">
-      <Filter>Windows</Filter>
-    </ClCompile>
     <ClCompile Include="CompExtrAPI.cpp">
       <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Common\FileStreams.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Windows\FileName.cpp">
-      <Filter>Windows</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\IntToString.cpp">
       <Filter>Common</Filter>
@@ -51,15 +36,18 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\Common\FileStreams.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Windows\FileIO.cpp">
+      <Filter>Windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\7zTypes.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\Defs.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\FileStreams.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\iarchive.h">
@@ -98,18 +86,6 @@
     <ClInclude Include="..\Windows\Defs.h">
       <Filter>Windows</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\FileDir.h">
-      <Filter>Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Windows\FileFind.h">
-      <Filter>Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Windows\FileIO.h">
-      <Filter>Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Windows\FileName.h">
-      <Filter>Windows</Filter>
-    </ClInclude>
     <ClInclude Include="..\Windows\PropVariant.h">
       <Filter>Windows</Filter>
     </ClInclude>
@@ -127,6 +103,12 @@
     </ClInclude>
     <ClInclude Include="..\Common\IntToString.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\FileStreams.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Windows\FileIO.h">
+      <Filter>Windows</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

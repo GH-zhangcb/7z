@@ -69,10 +69,7 @@
     <ClCompile Include="..\Common\FileStreams.cpp" />
     <ClCompile Include="..\Common\IntToString.cpp" />
     <ClCompile Include="..\Common\MyString.cpp" />
-    <ClCompile Include="..\Windows\FileDir.cpp" />
-    <ClCompile Include="..\Windows\FileFind.cpp" />
     <ClCompile Include="..\Windows\FileIO.cpp" />
-    <ClCompile Include="..\Windows\FileName.cpp" />
     <ClCompile Include="..\Windows\PropVariant.cpp" />
     <ClCompile Include="..\Windows\PropVariantConv.cpp" />
     <ClCompile Include="CompExtrAPI.cpp" />
@@ -96,10 +93,7 @@
     <ClInclude Include="..\Common\PropID.h" />
     <ClInclude Include="..\Common\StringConvert.h" />
     <ClInclude Include="..\Windows\Defs.h" />
-    <ClInclude Include="..\Windows\FileDir.h" />
-    <ClInclude Include="..\Windows\FileFind.h" />
     <ClInclude Include="..\Windows\FileIO.h" />
-    <ClInclude Include="..\Windows\FileName.h" />
     <ClInclude Include="..\Windows\PropVariant.h" />
     <ClInclude Include="..\Windows\PropVariantConv.h" />
     <ClInclude Include="CompExtrAPI.h" />

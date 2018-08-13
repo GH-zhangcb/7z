@@ -8,7 +8,7 @@
 #endif
 
 #include "FileIO.h"
-#include "FileName.h"
+//#include "FileName.h"
 
 #ifndef _UNICODE
 extern bool g_IsNT;
@@ -16,7 +16,7 @@ extern bool g_IsNT;
 using namespace std;
 using namespace NWindows;
 using namespace NFile;
-using namespace NName;
+//using namespace NName;
 
 namespace NWindows {
 namespace NFile {
@@ -66,7 +66,7 @@ bool CFileBase::Create(CFSTR path, DWORD desiredAccess,
   else
   #endif
   {
-    IF_USE_MAIN_PATH
+    //IF_USE_MAIN_PATH
       _handle = ::CreateFileW(fs2us(path), desiredAccess, shareMode,
         (LPSECURITY_ATTRIBUTES)NULL, creationDisposition, flagsAndAttributes, (HANDLE)NULL);
     #ifdef WIN_LONG_PATH
