@@ -26,7 +26,7 @@ namespace NWindows {
 namespace NFile {
 
 #if defined(_WIN32) && !defined(UNDER_CE)
-bool FillLinkData(CByteBuffer &dest, const wchar_t *path, bool isSymLink);
+//bool FillLinkData(CByteBuffer &dest, const wchar_t *path, bool isSymLink);
 #endif
 
 struct CReparseShortInfo
@@ -34,7 +34,7 @@ struct CReparseShortInfo
   unsigned Offset;
   unsigned Size;
 
-  bool Parse(const Byte *p, size_t size);
+ // bool Parse(const Byte *p, size_t size);
 };
 
 struct CReparseAttr
@@ -46,36 +46,29 @@ struct CReparseAttr
 
   CReparseAttr(): Tag(0), Flags(0) {}
 
-  // Parse()
-  // returns true and (errorCode = 0), if (correct MOUNT_POINT or SYMLINK)
-  // returns false and (errorCode = ERROR_REPARSE_TAG_MISMATCH), if not (MOUNT_POINT or SYMLINK)
-  bool Parse(const Byte *p, size_t size, DWORD &errorCode);
-
-  bool IsMountPoint() const { return Tag == _my_IO_REPARSE_TAG_MOUNT_POINT; } // it's Junction
-  bool IsSymLink() const { return Tag == _my_IO_REPARSE_TAG_SYMLINK; }
-  bool IsRelative() const { return Flags == _my_SYMLINK_FLAG_RELATIVE; }
-  // bool IsVolume() const;
-
-  bool IsOkNamePair() const;
-  UString GetPath() const;
+// Parse()
+// returns true and (errorCode = 0), if (correct MOUNT_POINT or SYMLINK)
+// returns false and (errorCode = ERROR_REPARSE_TAG_MISMATCH), if not (MOUNT_POINT or SYMLINK)
+// bool Parse(const Byte *p, size_t size, DWORD &errorCode);
+// bool IsMountPoint() const { return Tag == _my_IO_REPARSE_TAG_MOUNT_POINT; } // it's Junction
+// bool IsSymLink() const { return Tag == _my_IO_REPARSE_TAG_SYMLINK; }
+// bool IsRelative() const { return Flags == _my_SYMLINK_FLAG_RELATIVE; }
+// bool IsVolume() const;
+// bool IsOkNamePair() const;
+// UString GetPath() const;
 };
 
 namespace NIO {
-
-bool GetReparseData(CFSTR path, CByteBuffer &reparseData, BY_HANDLE_FILE_INFORMATION *fileInfo = NULL);
-bool SetReparseData(CFSTR path, bool isDir, const void *data, DWORD size);
-
+//bool GetReparseData(CFSTR path, CByteBuffer &reparseData, BY_HANDLE_FILE_INFORMATION *fileInfo = NULL);
+//bool SetReparseData(CFSTR path, bool isDir, const void *data, DWORD size);
 class CFileBase
 {
 protected:
   HANDLE _handle;
-  
-  bool Create(CFSTR path, DWORD desiredAccess,
-      DWORD shareMode, DWORD creationDisposition, DWORD flagsAndAttributes);
-
+  bool Create(CFSTR path, DWORD desiredAccess, DWORD shareMode, DWORD creationDisposition, DWORD flagsAndAttributes);
 public:
 
-  bool DeviceIoControl(DWORD controlCode, LPVOID inBuffer, DWORD inSize,
+ /* bool DeviceIoControl(DWORD controlCode, LPVOID inBuffer, DWORD inSize,
       LPVOID outBuffer, DWORD outSize, LPDWORD bytesReturned, LPOVERLAPPED overlapped = NULL) const
   {
     return BOOLToBool(::DeviceIoControl(_handle, controlCode, inBuffer, inSize,
@@ -91,7 +84,7 @@ public:
   {
     DWORD bytesReturned;
     return DeviceIoControlOut(controlCode, outBuffer, outSize, &bytesReturned);
-  }
+  }*/
 
 public:
   #ifdef SUPPORT_DEVICE_FILE
@@ -104,32 +97,27 @@ public:
   ~CFileBase() { Close(); }
 
   bool Close() throw();
-
-  bool GetPosition(UInt64 &position) const throw();
+  //bool GetPosition(UInt64 &position) const throw();
   bool GetLength(UInt64 &length) const throw();
-
   bool Seek(Int64 distanceToMove, DWORD moveMethod, UInt64 &newPosition) const throw();
   bool Seek(UInt64 position, UInt64 &newPosition) const throw();
-  bool SeekToBegin() const throw();
-  bool SeekToEnd(UInt64 &newPosition) const throw();
-  
+  // bool SeekToBegin() const throw();
+  // bool SeekToEnd(UInt64 &newPosition) const throw();
   bool GetFileInformation(BY_HANDLE_FILE_INFORMATION *info) const
-    { return BOOLToBool(GetFileInformationByHandle(_handle, info)); }
-
-  static bool GetFileInformation(CFSTR path, BY_HANDLE_FILE_INFORMATION *info)
+   { return BOOLToBool(GetFileInformationByHandle(_handle, info)); }
+  /*static bool GetFileInformation(CFSTR path, BY_HANDLE_FILE_INFORMATION *info)
   {
     NIO::CFileBase file;
     if (!file.Create(path, 0, FILE_SHARE_READ, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS))
       return false;
     return file.GetFileInformation(info);
-  }
+  }*/
 };
 
 #ifndef UNDER_CE
 #define IOCTL_CDROM_BASE  FILE_DEVICE_CD_ROM
 #define IOCTL_CDROM_GET_DRIVE_GEOMETRY  CTL_CODE(IOCTL_CDROM_BASE, 0x0013, METHOD_BUFFERED, FILE_READ_ACCESS)
 // #define IOCTL_CDROM_MEDIA_REMOVAL  CTL_CODE(IOCTL_CDROM_BASE, 0x0201, METHOD_BUFFERED, FILE_READ_ACCESS)
-
 // IOCTL_DISK_GET_DRIVE_GEOMETRY_EX works since WinXP
 #define my_IOCTL_DISK_GET_DRIVE_GEOMETRY_EX  CTL_CODE(IOCTL_DISK_BASE, 0x0028, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
@@ -188,7 +176,7 @@ public:
 
   bool Read1(void *data, UInt32 size, UInt32 &processedSize) throw();
   bool ReadPart(void *data, UInt32 size, UInt32 &processedSize) throw();
-  bool Read(void *data, UInt32 size, UInt32 &processedSize) throw();
+ // bool Read(void *data, UInt32 size, UInt32 &processedSize) throw();
 };
 
 class COutFile: public CFileBase

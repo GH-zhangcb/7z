@@ -80,9 +80,6 @@
     <ClInclude Include="..\Common\PropID.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\StringConvert.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="..\Windows\Defs.h">
       <Filter>Windows</Filter>
     </ClInclude>

@@ -91,7 +91,6 @@
     <ClInclude Include="..\Common\MyTypes.h" />
     <ClInclude Include="..\Common\MyVector.h" />
     <ClInclude Include="..\Common\PropID.h" />
-    <ClInclude Include="..\Common\StringConvert.h" />
     <ClInclude Include="..\Windows\Defs.h" />
     <ClInclude Include="..\Windows\FileIO.h" />
     <ClInclude Include="..\Windows\PropVariant.h" />

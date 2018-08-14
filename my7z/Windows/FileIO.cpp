@@ -92,10 +92,10 @@ bool CFileBase::Close() throw()
   return true;
 }
 
-bool CFileBase::GetPosition(UInt64 &position) const throw()
-{
-  return Seek(0, FILE_CURRENT, position);
-}
+//bool CFileBase::GetPosition(UInt64 &position) const throw()
+//{
+//  return Seek(0, FILE_CURRENT, position);
+//}
 
 bool CFileBase::GetLength(UInt64 &length) const throw()
 {
@@ -140,16 +140,16 @@ bool CFileBase::Seek(UInt64 position, UInt64 &newPosition) const throw()
   return Seek(position, FILE_BEGIN, newPosition);
 }
 
-bool CFileBase::SeekToBegin() const throw()
-{
-  UInt64 newPosition;
-  return Seek(0, newPosition);
-}
-
-bool CFileBase::SeekToEnd(UInt64 &newPosition) const throw()
-{
-  return Seek(0, FILE_END, newPosition);
-}
+//bool CFileBase::SeekToBegin() const throw()
+//{
+//  UInt64 newPosition;
+//  return Seek(0, newPosition);
+//}
+//
+//bool CFileBase::SeekToEnd(UInt64 &newPosition) const throw()
+//{
+//  return Seek(0, FILE_END, newPosition);
+//}
 
 // ---------- CInFile ---------
 
@@ -326,7 +326,6 @@ bool CInFile::Open(CFSTR fileName)
 // If you Read or Write 64MB or more (probably min_failure_size = 64MB - 32KB + 1)
 // from/to Network file, it returns ERROR_NO_SYSTEM_RESOURCES
 // (Insufficient system resources exist to complete the requested service).
-
 // Probably in some version of Windows there are problems with other sizes:
 // for 32 MB (maybe also for 16 MB).
 // And message can be "Network connection was lost"
@@ -348,24 +347,24 @@ bool CInFile::ReadPart(void *data, UInt32 size, UInt32 &processedSize) throw()
   return Read1(data, size, processedSize);
 }
 
-bool CInFile::Read(void *data, UInt32 size, UInt32 &processedSize) throw()
-{
-  processedSize = 0;
-  do
-  {
-    UInt32 processedLoc = 0;
-    bool res = ReadPart(data, size, processedLoc);
-    processedSize += processedLoc;
-    if (!res)
-      return false;
-    if (processedLoc == 0)
-      return true;
-    data = (void *)((unsigned char *)data + processedLoc);
-    size -= processedLoc;
-  }
-  while (size > 0);
-  return true;
-}
+//bool CInFile::Read(void *data, UInt32 size, UInt32 &processedSize) throw()
+//{
+//  processedSize = 0;
+//  do
+//  {
+//    UInt32 processedLoc = 0;
+//    bool res = ReadPart(data, size, processedLoc);
+//    processedSize += processedLoc;
+//    if (!res)
+//      return false;
+//    if (processedLoc == 0)
+//      return true;
+//    data = (void *)((unsigned char *)data + processedLoc);
+//    size -= processedLoc;
+//  }
+//  while (size > 0);
+//  return true;
+//}
 
 // ---------- COutFile ---------
 

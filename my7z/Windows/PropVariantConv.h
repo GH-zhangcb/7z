@@ -14,12 +14,11 @@
 #define kTimestampPrintLevel_NTFS 7
 
 bool ConvertUtcFileTimeToString(const FILETIME &ft, char *s, int level = kTimestampPrintLevel_SEC) throw();
-bool ConvertUtcFileTimeToString(const FILETIME &ft, wchar_t *s, int level = kTimestampPrintLevel_SEC) throw();
 
 // provide at least 32 bytes for buffer including zero-end
 // don't send VT_BSTR to these functions
 void ConvertPropVariantToShortString(const PROPVARIANT &prop, char *dest) throw();
-void ConvertPropVariantToShortString(const PROPVARIANT &prop, wchar_t *dest) throw();
+
 
 inline bool ConvertPropVariantToUInt64(const PROPVARIANT &prop, UInt64 &value)
 {

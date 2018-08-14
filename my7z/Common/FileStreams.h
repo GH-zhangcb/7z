@@ -7,7 +7,7 @@
 #define USE_WIN_FILE
 #endif
 
-#include "MyString.h"
+//#include "MyString.h"
 
 #ifdef USE_WIN_FILE
 #include "../Windows/FileIO.h"

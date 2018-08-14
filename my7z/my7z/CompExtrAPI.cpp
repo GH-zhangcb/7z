@@ -7,33 +7,26 @@
 #include <io.h>
 #include <initguid.h>
 #include "../Common/MyString.h"
-#include "../Common/StringConvert.h"
 #include "../Common/MyCom.h"
 #include "../Common/iarchive.h"
 #include "../Common/FileStreams.h"
-//#include "../Windows/NtCheck.h"
-//#include "../Windows/FileName.h"
 #include "../Windows/PropVariant.h"
 #include "../Windows/PropVariantConv.h"
 #include "../Common/IntToString.h"
-//#include "../Windows/FileFind.h"
-//#include "../Windows/FileDir.h"
 #include "CompExtrAPI.h"
 
 #pragma comment(lib,"Shlwapi.lib")
 using namespace std;
 using namespace NWindows;
-//using namespace NFile;
-//using namespace NDir;
 
 DEFINE_GUID(CLSID_CFormat7z,
 	0x23170F69, 0x40C1, 0x278A, 0x10, 0x00, 0x00, 0x01, 0x10, 0x07, 0x00, 0x00);
-
 #define CLSID_Format CLSID_CFormat7z
 
 static FString StringToFString(const wchar_t *s)
 {
-	return us2fs(GetUnicodeString(s));
+	//return us2fs(GetUnicodeString(s));
+	return us2fs(s);
 }
 
 static HRESULT IsArchiveItemProp(IInArchive *archive, UInt32 index, PROPID propID, bool &result)
@@ -54,7 +47,6 @@ static HRESULT IsArchiveItemFolder(IInArchive *archive, UInt32 index, bool &resu
 	return IsArchiveItemProp(archive, index, kpidIsDir, result);
 }
 
-////////////////////////////////////////////////////////////////////
 class CArchiveOpenCallback :
 	public IArchiveOpenCallback
 {
@@ -88,7 +80,7 @@ static const char * const kUnexpectedEnd = "Unexpected end of data";
 static const char * const kDataAfterEnd = "There are some data after the end of the payload data";
 static const char * const kIsNotArc = "Is not archive";
 static const char * const kHeadersError = "Headers Error";
-//////////////////////////////////////////////////////////////
+
 class CArchiveExtractCallback :
 	public IArchiveExtractCallback
 {
@@ -96,16 +88,13 @@ public:
 	// IProgress
 	STDMETHOD(SetTotal)(UInt64 size);
 	STDMETHOD(SetCompleted)(const UInt64 *completeValue);
-
 	// IArchiveExtractCallback
 	STDMETHOD(GetStream)(UInt32 index, ISequentialOutStream **outStream, Int32 askExtractMode);
 	STDMETHOD(PrepareOperation)(Int32 askExtractMode);
 	STDMETHOD(SetOperationResult)(Int32 resultEOperationResult);
-
 	STDMETHOD(QueryInterface)(const IID & iid, void **ppvObject){ return 0; };
 	ULONG __stdcall AddRef(){ return 0; };
 	ULONG __stdcall Release(){ return 0; };
-
 private:
 	CMyComPtr<IInArchive> _archiveHandler;
 	FString _directoryPath;  // Output directory
@@ -137,7 +126,6 @@ void CArchiveExtractCallback::Init(IInArchive *archiveHandler, const FString &di
 	NumErrors = 0;
 	_archiveHandler = archiveHandler;
 	_directoryPath = directoryPath;
-	//NName::NormalizeDirPathPrefix(_directoryPath);//h好像没用 需验证 确保以‘\\’结尾
 }
 
 UInt64 eFullSize;
@@ -165,7 +153,6 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index,
 {
 	*outStream = 0;
 	_outFileStream.Release();
-
 	{
 		// Get Name
 		NCOM::CPropVariant prop;
@@ -182,10 +169,8 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index,
 		}
 		_filePath = fullPath;
 	}
-
 	if (askExtractMode != NArchive::NExtract::NAskMode::kExtract)
 		return S_OK;
-
 	{
 		// Get Attrib
 		NCOM::CPropVariant prop;
@@ -232,42 +217,8 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index,
 		UInt64 newFileSize;
 		/* bool newFileSizeDefined = */ ConvertPropVariantToUInt64(prop, newFileSize);
 	}
-
-	//int slashPos_back = _filePath.ReverseFind_PathSepar();//得到文件所在的路径，返回路径的长度，不包括最后的‘\’
-	//int slashPos_front = _filePath.ReturnUString_PathSeparFront();
-	//int slashPos_length=_filePath.ReturnUStringLength();//字符串长度
-	//FString fullProcessedPath = StringToFString(L"");//初始化路径
-	//	// Create folders for file
-	//if (slashPos_front >= 0)
-	//	{
-	//	//CreateComplexDir(_directoryPath + us2fs(_filePath.Left(slashPos_back)));
-	//	fullProcessedPath = _directoryPath + us2fs(_filePath.Mid(slashPos_front + 1, slashPos_length - slashPos_front - 1));
-	//	}
-    //       else
-	//	{
-	//		fullProcessedPath = _directoryPath + us2fs(_filePath.Mid(slashPos_front + 1, slashPos_length));
-   //        }
-
 	FString fullProcessedPath = _directoryPath + us2fs(_filePath);
 	_diskFilePath = fullProcessedPath;
-
-	//if (_processedFileInfo.isDir)//是为了建立输出路径，即建立文件夹，所以在压缩时需要将文件夹压缩进去(否则找不到路径)
-	//{
-	//	CreateComplexDir(fullProcessedPath);
-	//}
-	//else
-	//{
-	//	NFind::CFileInfo fi;
-	//	if (fi.Find(fullProcessedPath))
-	//	{
-	//		if (!DeleteFileAlways(fullProcessedPath))//覆盖已存在文件
-	//		{
-	//			cout << "Can not delete output file" << endl; 
-	//			return E_ABORT;
-	//		}
-	//	}
-
-
 	if (_processedFileInfo.isDir)//是为了建立输出路径，即建立文件夹，所以在压缩时需要将文件夹压缩进去(否则找不到路径)
 	{
 		DWORD attrib = GetFileAttributes(fullProcessedPath);//创建目录
@@ -275,7 +226,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index,
 		{
 			if (!CreateDirectoryW(fullProcessedPath, NULL))
 			{
-				cout << "Create ExtractDirectory failed" << endl;
+				OutputDebugString(L"Create ExtractDirectory failed"); 
 				return false;
 			}
 		}		
@@ -288,7 +239,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index,
 		{
 			if (!DeleteFileW(fullProcessedPath))//覆盖已存在文件
 			{
-				cout << "Can not delete output file" << endl;
+				OutputDebugString(L"Can not delete output file");
 				return E_ABORT;
 			}
 		}
@@ -297,7 +248,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index,
 		CMyComPtr<ISequentialOutStream> outStreamLoc(_outFileStreamSpec);
 		if (!_outFileStreamSpec->Open(fullProcessedPath, CREATE_ALWAYS))
 		{
-			cout<<"Can not open output file"<<endl;
+			OutputDebugString(L"Can not open output file");
 			return E_ABORT;
 		}
 		_outFileStream = outStreamLoc;
@@ -319,7 +270,6 @@ STDMETHODIMP CArchiveExtractCallback::PrepareOperation(Int32 askExtractMode)
 	case NArchive::NExtract::NAskMode::kTest:   break;//cout<<kExtractingString<<endl
 	case NArchive::NExtract::NAskMode::kSkip:  break;//cout<<kExtractingString<<endl
 	};
-	
 	//wcout<<_filePath<<endl;输出解压文件名
 	return S_OK;
 }
@@ -332,48 +282,46 @@ STDMETHODIMP CArchiveExtractCallback::SetOperationResult(Int32 operationResult)
 		break;
 	default:
 	  {
-			   NumErrors++;
-			   cout<<"  :  "<<endl;
-			   const char *s = NULL;
-			   switch (operationResult)
-			   {
-			   case NArchive::NExtract::NOperationResult::kUnsupportedMethod:
-				   s = kUnsupportedMethod;
-				   break;
-			   case NArchive::NExtract::NOperationResult::kCRCError:
-				   s = kCRCFailed;
-				   break;
-			   case NArchive::NExtract::NOperationResult::kDataError:
-				   s = kDataError;
-				   break;
-			   case NArchive::NExtract::NOperationResult::kUnavailable:
-				   s = kUnavailableData;
-				   break;
-			   case NArchive::NExtract::NOperationResult::kUnexpectedEnd:
-				   s = kUnexpectedEnd;
-				   break;
-			   case NArchive::NExtract::NOperationResult::kDataAfterEnd:
-				   s = kDataAfterEnd;
-				   break;
-			   case NArchive::NExtract::NOperationResult::kIsNotArc:
-				   s = kIsNotArc;
-				   break;
-			   case NArchive::NExtract::NOperationResult::kHeadersError:
-				   s = kHeadersError;
-				   break;
-			   }
-			   if (s)
-			   {
-				   cout<<"Error : "<<endl;
-				   cout<<s<<endl;
-			   }
-			   else
-			   {
-				   char temp[16];
-				   ConvertUInt32ToString(operationResult, temp);
-				   cout<<"Error #"<<endl;
-				   cout<<temp<<endl;
-			   }
+		 NumErrors++;
+	     OutputDebugString(L" : ");
+		 const char *s = NULL;
+		 switch (operationResult)
+		 {
+		 case NArchive::NExtract::NOperationResult::kUnsupportedMethod:
+			s = kUnsupportedMethod;
+		    break;
+	    case NArchive::NExtract::NOperationResult::kCRCError:
+			s = kCRCFailed;
+			break;
+	    case NArchive::NExtract::NOperationResult::kDataError:
+			s = kDataError;
+			break;
+	    case NArchive::NExtract::NOperationResult::kUnavailable:
+			s = kUnavailableData;
+			break;
+		case NArchive::NExtract::NOperationResult::kUnexpectedEnd:
+			s = kUnexpectedEnd;
+			break;
+		case NArchive::NExtract::NOperationResult::kDataAfterEnd:
+			s = kDataAfterEnd;
+			break;
+		case NArchive::NExtract::NOperationResult::kIsNotArc:
+			s = kIsNotArc;
+			break;
+		case NArchive::NExtract::NOperationResult::kHeadersError:
+			s = kHeadersError;
+			break;
+		 }
+		if (s)
+		{
+			OutputDebugString(L"Error : ");
+		}
+		else
+		{
+			char temp[16];
+			ConvertUInt32ToString(operationResult, temp);
+			OutputDebugString(L"Error #");
+		}
 	  }
 	}
 
@@ -395,7 +343,6 @@ STDMETHODIMP CArchiveExtractCallback::SetOperationResult(Int32 operationResult)
 	return S_OK;
 }
 
-/////////////////////////////////////////////////////////
 //打包
 struct CDirItem
 {
@@ -406,18 +353,16 @@ struct CDirItem
 	UString Name;
 	FString FullPath;
 	UInt32 Attrib;
-
 	bool isDir() const { return (Attrib & FILE_ATTRIBUTE_DIRECTORY) != 0; }
-};//
+};
 
 class CArchiveUpdateCallback :
 	public IArchiveUpdateCallback2
 {
 public:
-		// IProgress
+	// IProgress
 	STDMETHOD(SetTotal)(UInt64 size);
 	STDMETHOD(SetCompleted)(const UInt64 *completeValue);
-
 	// IUpdateCallback2
 	STDMETHOD(GetUpdateItemInfo)(UInt32 index,
 	Int32 *newData, Int32 *newProperties, UInt32 *indexInArchive);
@@ -529,10 +474,8 @@ HRESULT CArchiveUpdateCallback::Finilize()
 
 static void GetStream2(const wchar_t *name)
 {
-	//cout<<"Compressing"<<endl;
 	if (name[0] == 0)
 		name = kEmptyFileAlias;
-	//wcout<<name<<endl;
 }
 
 STDMETHODIMP CArchiveUpdateCallback::GetStream(UInt32 index, ISequentialInStream **inStream)
@@ -556,7 +499,7 @@ STDMETHODIMP CArchiveUpdateCallback::GetStream(UInt32 index, ISequentialInStream
 			FailedFiles.Add(path);
 			// if (systemError == ERROR_SHARING_VIOLATION)
 			{
-				cout<<"WARNING: can't open file"<<endl;
+				OutputDebugString(L"WARNING: can't open file");
 				// Print(NError::MyFormatMessageW(systemError));
 				return S_FALSE;
 			}
@@ -628,7 +571,7 @@ bool CompressExtract::Load7zDLL(const wstring &load7zDllName)
 	DllHandleName = LoadLibrary(load7zDllName.c_str());
 	if (!DllHandleName)
 	{
-		cout << "load 7z.dll failed" << endl;
+		OutputDebugString(L"load 7z.dll failed");
 		return false;
 	}
 	return true;
@@ -645,7 +588,7 @@ bool CompressExtract::ExtractFile(const wstring &archiveFileName, const wstring 
 	Func_CreateObject createObjectFunc = (Func_CreateObject)GetProcAddress(DllHandleName, "CreateObject");
 	if (!createObjectFunc)
 	{
-		cout << "load function: CreatObject failed" << endl;
+		OutputDebugString(L"load function: CreatObject failed");
 		return false;
 	}
 
@@ -653,7 +596,7 @@ bool CompressExtract::ExtractFile(const wstring &archiveFileName, const wstring 
 	CMyComPtr<IInArchive> archive;
 	if (createObjectFunc(&CLSID_Format, &IID_IInArchive, (void **)&archive) != S_OK)
 	{
-		cout << "Can not get class object" << endl;
+		OutputDebugString(L"Can not get class object");
 		return false;
 	}
 	CInFileStream *fileSpec = new CInFileStream;
@@ -661,7 +604,7 @@ bool CompressExtract::ExtractFile(const wstring &archiveFileName, const wstring 
 	//找不到该文件
 	if (!fileSpec->Open(archiveName))
 	{
-		cout << "Can not open archive file" << endl;
+		OutputDebugString(L"Can not open archive file");
 		return false;
 	}
 	{//open
@@ -672,7 +615,7 @@ bool CompressExtract::ExtractFile(const wstring &archiveFileName, const wstring 
 		//文件虽说找到了，但格式不对，如.rar格式的
 		if (archive->Open(file, &scanSize, openCallback) != S_OK)
 		{
-			cout << "Can not open file as archive" << endl;
+			OutputDebugString(L"Can not open file as archive");
 			return false;
 		}
 	}
@@ -686,7 +629,7 @@ bool CompressExtract::ExtractFile(const wstring &archiveFileName, const wstring 
 		HRESULT result = archive->Extract(NULL, (UInt32)(Int32)(-1), false, extractCallback);
 		if (result != S_OK)
 		{
-			cout << "Extract Error" << endl;
+			OutputDebugString(L"Extract Error");
 			return false;
 		}
 	return true;
@@ -700,7 +643,7 @@ bool CompressExtract::ShowArchivefileList(const wstring &archiveFileName, map<ws
 	Func_CreateObject createObjectFunc = (Func_CreateObject)GetProcAddress(DllHandleName, "CreateObject");
 	if (!createObjectFunc)
 	{
-		cout << "load function: CreatObject failed" << endl;
+		OutputDebugString(L"load function: CreatObject failed");
 		return false;
 	}
 
@@ -708,7 +651,7 @@ bool CompressExtract::ShowArchivefileList(const wstring &archiveFileName, map<ws
 	CMyComPtr<IInArchive> archive;
 	if (createObjectFunc(&CLSID_Format, &IID_IInArchive, (void **)&archive) != S_OK)
 	{
-		cout << "Can not get class object" << endl;
+		OutputDebugString(L"Can not get class object");
 		return false;
 	}
 	CInFileStream *fileSpec = new CInFileStream;
@@ -716,7 +659,7 @@ bool CompressExtract::ShowArchivefileList(const wstring &archiveFileName, map<ws
 	//找不到改文件
 	if (!fileSpec->Open(archiveName))
 	{
-		cout << "Can not open archive file" << endl;
+		OutputDebugString(L"Can not open archive file");
 		return false;
 	}
 	{//open
@@ -727,7 +670,7 @@ bool CompressExtract::ShowArchivefileList(const wstring &archiveFileName, map<ws
 		//文件虽说找到了，但格式不对，如.rar格式的
 		if (archive->Open(file, &scanSize, openCallback) != S_OK)
 		{
-			cout << "Can not open file as archive" << endl;
+			OutputDebugString(L"Can not open file as archive");
 			return false;
 		}
 	}
@@ -748,7 +691,7 @@ bool CompressExtract::ShowArchivefileList(const wstring &archiveFileName, map<ws
 			archivefilelist.insert(make_pair(prop.bstrVal,atoi(s)));
 		}
 		else if (prop.vt != VT_EMPTY)
-			cout << "ERROR!" << endl;  
+			OutputDebugString(L"ERROR!");  
 	}
 	return true;
 }
@@ -786,7 +729,7 @@ bool CompressExtract::filePathExist(const wstring &wsfileName, vector<wstring>& 
 	HANDLE hFile = FindFirstFile(wsfileName.c_str(), &fileinfo);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
-		cout << "file not existed" << endl;
+		OutputDebugString(L"file not existed");
 		return false;
 	}
 	else
@@ -798,7 +741,7 @@ bool CompressExtract::filePathExist(const wstring &wsfileName, vector<wstring>& 
 	}
 	if (!FindClose(hFile))
 	{
-		wcout << "close handle failed" << endl;
+		OutputDebugString(L"close handle failed");
 	}
 	return true;
 }
@@ -812,7 +755,7 @@ bool CompressExtract::DirectoryPathExit(const wstring &wsDirName, vector<wstring
 	HANDLE hFile = FindFirstFile(sDirName_append.c_str(), &fileinfo);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
-		cout << "can't match path" << endl;
+		OutputDebugString(L"can't match path");
 		return false;
 	}
 	do
@@ -834,7 +777,7 @@ bool CompressExtract::DirectoryPathExit(const wstring &wsDirName, vector<wstring
 	filesList.push_back(wsDirName);	
 	if (!FindClose(hFile))
 	{
-		wcout << "close handle failed" << endl;
+		OutputDebugString(L"close handle failed");
 	}
 	return true;
 }
@@ -850,7 +793,7 @@ bool CompressExtract::GetAllFiles()
 		HANDLE hFile = FindFirstFile(_filename[i].c_str(), &fileinfo);
 		if (hFile == INVALID_HANDLE_VALUE)
 		{
-			wcout << "Can't find file: " << _filename[i]<< endl;
+			OutputDebugString(L"Can't find file: ");
 			return false;
 		}
 		if (fileinfo.dwFileAttributes &FILE_ATTRIBUTE_DIRECTORY)
@@ -866,7 +809,7 @@ bool CompressExtract::GetAllFiles()
 		}
 		if (!FindClose(hFile))
 		{
-			wcout << "close handle failed" << endl;
+			OutputDebugString(L"close handle failed");
 		}
 	}
 
@@ -902,39 +845,19 @@ bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring
 	Func_CreateObject createObjectFunc = (Func_CreateObject)GetProcAddress(DllHandleName, "CreateObject");
 	if (!createObjectFunc)
 	{
-		cout << "load function: CreatObject failed" << endl;
+		OutputDebugString(L"load function: CreatObject failed");
 		return false;
 	}
-
 	FString archiveName = StringToFString(archiveFileName.c_str());
 	FileStringSepar(fileNames);
 	if (!GetAllFiles())
 	{
-		cout << "file get failed" << endl;
+		OutputDebugString(L"file get failed");
 		return false;
 	}
 	CObjectVector<CDirItem> dirItems;
 	{
 		size_t i;
-		//for (i = 0; i < _allfileList.size(); i++)
-		//{
-		//	CDirItem di;
-		//	FString name = StringToFString(_allfileList[i].c_str());//文件名
-		//	NFind::CFileInfo fi;
-		//	if (!fi.Find(name))
-		//	{
-		//		wcout << "Can't find file:" << name << endl;
-		//		return false;
-		//	}
-		//	di.Attrib = fi.Attrib;
-		//	di.Size = fi.Size;
-		//	di.CTime = fi.CTime;
-		//	di.ATime = fi.ATime;
-		//	di.MTime = fi.MTime;
-		//	di.Name = fs2us(StringToFString(_compressfilePath[i].c_str()));//注：name是文件的名称，会把name字符串全部压缩，所以name若带路径，则连路径也一块压缩进去
-		//	di.FullPath = name;//fullPath是文件所在的全路径
-		//	dirItems.Add(di);
-		//}
 		for (i = 0; i < _allfileList.size(); i++)
 		{
 			CDirItem di;
@@ -943,7 +866,7 @@ bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring
 			HANDLE hFile = FindFirstFile(_allfileList[i].c_str(), &fileinfo);
 			if (hFile == INVALID_HANDLE_VALUE)
 			{
-				cout << "Cant't find file" << endl;
+				OutputDebugString(L"Cant't find file");
 				return false;
 			}
 			di.Attrib = fileinfo.dwFileAttributes;
@@ -955,20 +878,19 @@ bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring
 			di.FullPath = name;//fullPath是文件所在的全路径
 			dirItems.Add(di);
 		}
-		
 	}
 
 	COutFileStream *outFileStreamSpec = new COutFileStream;
 	CMyComPtr<IOutStream> outFileStream = outFileStreamSpec;
 	if (!outFileStreamSpec->Create(archiveName, true))//创建打包文件，若把false改成true，则为若压缩文件存在就覆盖
 	{
-		cout << "can't create archive file" << endl;
+		OutputDebugString(L"can't create archive file");
 		return false;
 	}
 	CMyComPtr<IOutArchive> outArchive;
 	if (createObjectFunc(&CLSID_Format, &IID_IOutArchive, (void **)&outArchive) != S_OK)
 	{
-		cout << "Can not get class object" << endl;
+		OutputDebugString(L"Can not get class object");
 		return false;
 	}
      
@@ -980,13 +902,13 @@ bool CompressExtract::CompressFile(const wstring &archiveFileName, const wstring
 	updateCallbackSpec->Finilize();
 	if (result != S_OK)
 	{
-		cout << "Update Error" << endl;
+		OutputDebugString(L"Update Error");
 		return false;
 	}
 	FOR_VECTOR(i, updateCallbackSpec->FailedFiles)
 	{
-		cout << endl;
-		cout << "Error for file" << endl;
+		
+		OutputDebugString(L"Error for file");
 	}
 	if (updateCallbackSpec->FailedFiles.Size() != 0)
 		return false;
