@@ -1,9 +1,22 @@
 // IArchive.h
+#ifndef __IPROGRESS_H
+#define __IPROGRESS_H
+#include "MyTypes.h"
+#include "IDecl.h"
+#define INTERFACE_IProgress(x) \
+	STDMETHOD(SetTotal)(UInt64 total) x; \
+	STDMETHOD(SetCompleted)(const UInt64 *completeValue) x; \
+
+DECL_INTERFACE(IProgress, 0, 5)
+{
+	INTERFACE_IProgress(PURE)
+};
+
+#endif
 
 #ifndef __IARCHIVE_H
 #define __IARCHIVE_H
-
-#include "IProgress.h"
+//#include "IProgress.h"
 #include "IStream.h"
 #include "PropID.h"
 

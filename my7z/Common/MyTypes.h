@@ -4,9 +4,7 @@
 #define __COMMON_MY_TYPES_H
 
 #include "7zTypes.h"
-
 typedef int HRes;
-
 struct CBoolPair
 {
   bool Val;

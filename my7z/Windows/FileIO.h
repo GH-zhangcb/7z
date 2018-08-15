@@ -10,8 +10,8 @@
 #endif
 
 #include "../Common/MyString.h"
-#include "../Common/MyBuffer.h"
-
+//#include "../Common/MyBuffer.h"
+#include "../Common/Defs.h"
 #include "Defs.h"
 
 #define _my_IO_REPARSE_TAG_MOUNT_POINT  (0xA0000003L)

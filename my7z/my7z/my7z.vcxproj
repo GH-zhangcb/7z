@@ -77,20 +77,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\7zTypes.h" />
-    <ClInclude Include="..\Common\CpuArch.h" />
     <ClInclude Include="..\Common\Defs.h" />
     <ClInclude Include="..\Common\FileStreams.h" />
     <ClInclude Include="..\Common\iarchive.h" />
     <ClInclude Include="..\Common\IDecl.h" />
     <ClInclude Include="..\Common\IntToString.h" />
-    <ClInclude Include="..\Common\IProgress.h" />
     <ClInclude Include="..\Common\IStream.h" />
-    <ClInclude Include="..\Common\MyBuffer.h" />
     <ClInclude Include="..\Common\MyCom.h" />
     <ClInclude Include="..\Common\MyString.h" />
     <ClInclude Include="..\Common\MyTypes.h" />
     <ClInclude Include="..\Common\MyVector.h" />
     <ClInclude Include="..\Common\PropID.h" />
+    <ClInclude Include="..\Common\StringConvert.h" />
     <ClInclude Include="..\Windows\Defs.h" />
     <ClInclude Include="..\Windows\FileIO.h" />
     <ClInclude Include="..\Windows\PropVariant.h" />

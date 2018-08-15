@@ -53,7 +53,7 @@ public:
     bstrVal = 0;
   }
   ~CPropVariant() throw() { Clear(); }
-   // CPropVariant(const PROPVARIANT &varSrc);
+  // CPropVariant(const PROPVARIANT &varSrc);
   // CPropVariant(const CPropVariant &varSrc);
   // CPropVariant(BSTR bstrSrc);
   // CPropVariant(LPCOLESTR lpszSrc);

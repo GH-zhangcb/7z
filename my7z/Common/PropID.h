@@ -2,9 +2,7 @@
 
 #ifndef __7ZIP_PROP_ID_H
 #define __7ZIP_PROP_ID_H
-
 #include "MyTypes.h"
-
 enum
 {
   kpidNoProperty = 0,
@@ -103,9 +101,7 @@ enum
   kpidReadOnly,
   kpidOutName,
   kpidCopyLink,
-
   kpid_NUM_DEFINED,
-
   kpidUserDefined = 0x10000
 };
 

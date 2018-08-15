@@ -10,15 +10,14 @@
 
 #include "IntToString.h"
 
-#if !defined(_UNICODE) || !defined(USE_UNICODE_FSTRING)
-#include "StringConvert.h"
-#endif
+//#if !defined(_UNICODE) || !defined(USE_UNICODE_FSTRING)
+//#include "StringConvert.h"
+//#endif
 
 #include "MyString.h"
 
 #define MY_STRING_NEW(_T_, _size_) new _T_[_size_]
 // #define MY_STRING_NEW(_T_, _size_) ((_T_ *)my_new((size_t)(_size_) * sizeof(_T_)))
-
 /*
 inline const char* MyStringGetNextCharPointer(const char *p) throw()
 {
@@ -32,7 +31,6 @@ inline const char* MyStringGetNextCharPointer(const char *p) throw()
 
 #define MY_STRING_NEW_char(_size_) MY_STRING_NEW(char, _size_)
 #define MY_STRING_NEW_wchar_t(_size_) MY_STRING_NEW(wchar_t, _size_)
-
 
 int FindCharPosInString(const char *s, char c) throw()
 {
@@ -207,21 +205,20 @@ bool StringsAreEqualNoCase(const wchar_t *s1, const wchar_t *s2) throw()
 }
 
 // ---------- ASCII ----------
-
-bool AString::IsPrefixedBy_Ascii_NoCase(const char *s) const throw()
-{
-  const char *s1 = _chars;
-  for (;;)
-  {
-    char c2 = *s++;
-    if (c2 == 0)
-      return true;
-    char c1 = *s1++;
-    if (MyCharLower_Ascii(c1) !=
-        MyCharLower_Ascii(c2))
-      return false;
-  }
-}
+//bool AString::IsPrefixedBy_Ascii_NoCase(const char *s) const throw()
+//{
+//  const char *s1 = _chars;
+//  for (;;)
+//  {
+//    char c2 = *s++;
+//    if (c2 == 0)
+//      return true;
+//    char c1 = *s1++;
+//    if (MyCharLower_Ascii(c1) !=
+//        MyCharLower_Ascii(c2))
+//      return false;
+//  }
+//}
 
 bool UString::IsPrefixedBy_Ascii_NoCase(const char *s) const throw()
 {
@@ -369,530 +366,526 @@ int MyStringCompareNoCase_N(const wchar_t *s1, const wchar_t *s2, unsigned num)
 */
 
 // ---------- AString ----------
+//void AString::InsertSpace(unsigned &index, unsigned size)
+//{
+//  Grow(size);
+//  MoveItems(index + size, index);
+//}
+//
+//
+//void AString::ReAlloc(unsigned newLimit)
+//{
+//  if (newLimit < _len || newLimit >= k_Alloc_Len_Limit) throw 20130220;
+//  // MY_STRING_REALLOC(_chars, char, newLimit + 1, _len + 1);
+//  char *newBuf = MY_STRING_NEW_char(newLimit + 1);
+//  memcpy(newBuf, _chars, (size_t)(_len + 1));
+//  MY_STRING_DELETE(_chars);
+//  _chars = newBuf;
+//  _limit = newLimit;
+//}
+//
+//void AString::ReAlloc2(unsigned newLimit)
+//{
+//  if (newLimit >= k_Alloc_Len_Limit) throw 20130220;
+//  // MY_STRING_REALLOC(_chars, char, newLimit + 1, 0);
+//  char *newBuf = MY_STRING_NEW_char(newLimit + 1);
+//  newBuf[0] = 0;
+//  MY_STRING_DELETE(_chars);
+//  _chars = newBuf;
+//  _limit = newLimit;
+//}
+//
+//void AString::SetStartLen(unsigned len)
+//{
+//  _chars = 0;
+//  _chars = MY_STRING_NEW_char(len + 1);
+//  _len = len;
+//  _limit = len;
+//}
+//
+//void AString::Grow_1()
+//{
+//  unsigned next = _len;
+//  next += next / 2;
+//  next += 16;
+//  next &= ~(unsigned)15;
+//  ReAlloc(next - 1);
+//}
+//
+//void AString::Grow(unsigned n)
+//{
+//  unsigned freeSize = _limit - _len;
+//  if (n <= freeSize)
+//    return;
+//  
+//  unsigned next = _len + n;
+//  next += next / 2;
+//  next += 16;
+//  next &= ~(unsigned)15;
+//  ReAlloc(next - 1);
+//}
+//
+//AString::AString(unsigned num, const char *s)
+//{
+//  unsigned len = MyStringLen(s);
+//  if (num > len)
+//    num = len;
+//  SetStartLen(num);
+//  memcpy(_chars, s, num);
+//  _chars[num] = 0;
+//}
+//
+//AString::AString(unsigned num, const AString &s)
+//{
+//  if (num > s._len)
+//    num = s._len;
+//  SetStartLen(num);
+//  memcpy(_chars, s._chars, num);
+//  _chars[num] = 0;
+//}
+//
+//AString::AString(const AString &s, char c)
+//{
+//  SetStartLen(s.Len() + 1);
+//  char *chars = _chars;
+//  unsigned len = s.Len();
+//  memcpy(chars, s, len);
+//  chars[len] = c;
+//  chars[(size_t)len + 1] = 0;
+//}
+//
+//AString::AString(const char *s1, unsigned num1, const char *s2, unsigned num2)
+//{
+//  SetStartLen(num1 + num2);
+//  char *chars = _chars;
+//  memcpy(chars, s1, num1);
+//  memcpy(chars + num1, s2, num2 + 1);
+//}
+//
+//AString operator+(const AString &s1, const AString &s2) { return AString(s1, s1.Len(), s2, s2.Len()); }
+//AString operator+(const AString &s1, const char    *s2) { return AString(s1, s1.Len(), s2, MyStringLen(s2)); }
+//AString operator+(const char    *s1, const AString &s2) { return AString(s1, MyStringLen(s1), s2, s2.Len()); }
+//
 
-void AString::InsertSpace(unsigned &index, unsigned size)
-{
-  Grow(size);
-  MoveItems(index + size, index);
-}
-
-#define k_Alloc_Len_Limit 0x40000000
-
-void AString::ReAlloc(unsigned newLimit)
-{
-  if (newLimit < _len || newLimit >= k_Alloc_Len_Limit) throw 20130220;
-  // MY_STRING_REALLOC(_chars, char, newLimit + 1, _len + 1);
-  char *newBuf = MY_STRING_NEW_char(newLimit + 1);
-  memcpy(newBuf, _chars, (size_t)(_len + 1));
-  MY_STRING_DELETE(_chars);
-  _chars = newBuf;
-  _limit = newLimit;
-}
-
-void AString::ReAlloc2(unsigned newLimit)
-{
-  if (newLimit >= k_Alloc_Len_Limit) throw 20130220;
-  // MY_STRING_REALLOC(_chars, char, newLimit + 1, 0);
-  char *newBuf = MY_STRING_NEW_char(newLimit + 1);
-  newBuf[0] = 0;
-  MY_STRING_DELETE(_chars);
-  _chars = newBuf;
-  _limit = newLimit;
-}
-
-void AString::SetStartLen(unsigned len)
-{
-  _chars = 0;
-  _chars = MY_STRING_NEW_char(len + 1);
-  _len = len;
-  _limit = len;
-}
-
-void AString::Grow_1()
-{
-  unsigned next = _len;
-  next += next / 2;
-  next += 16;
-  next &= ~(unsigned)15;
-  ReAlloc(next - 1);
-}
-
-void AString::Grow(unsigned n)
-{
-  unsigned freeSize = _limit - _len;
-  if (n <= freeSize)
-    return;
-  
-  unsigned next = _len + n;
-  next += next / 2;
-  next += 16;
-  next &= ~(unsigned)15;
-  ReAlloc(next - 1);
-}
-
-AString::AString(unsigned num, const char *s)
-{
-  unsigned len = MyStringLen(s);
-  if (num > len)
-    num = len;
-  SetStartLen(num);
-  memcpy(_chars, s, num);
-  _chars[num] = 0;
-}
-
-AString::AString(unsigned num, const AString &s)
-{
-  if (num > s._len)
-    num = s._len;
-  SetStartLen(num);
-  memcpy(_chars, s._chars, num);
-  _chars[num] = 0;
-}
-
-AString::AString(const AString &s, char c)
-{
-  SetStartLen(s.Len() + 1);
-  char *chars = _chars;
-  unsigned len = s.Len();
-  memcpy(chars, s, len);
-  chars[len] = c;
-  chars[(size_t)len + 1] = 0;
-}
-
-AString::AString(const char *s1, unsigned num1, const char *s2, unsigned num2)
-{
-  SetStartLen(num1 + num2);
-  char *chars = _chars;
-  memcpy(chars, s1, num1);
-  memcpy(chars + num1, s2, num2 + 1);
-}
-
-AString operator+(const AString &s1, const AString &s2) { return AString(s1, s1.Len(), s2, s2.Len()); }
-AString operator+(const AString &s1, const char    *s2) { return AString(s1, s1.Len(), s2, MyStringLen(s2)); }
-AString operator+(const char    *s1, const AString &s2) { return AString(s1, MyStringLen(s1), s2, s2.Len()); }
-
-static const unsigned kStartStringCapacity = 4;
- 
-AString::AString()
-{
-  _chars = 0;
-  _chars = MY_STRING_NEW_char(kStartStringCapacity);
-  _len = 0;
-  _limit = kStartStringCapacity - 1;
-  _chars[0] = 0;
-}
-
-AString::AString(char c)
-{
-  SetStartLen(1);
-  char *chars = _chars;
-  chars[0] = c;
-  chars[1] = 0;
-}
-
-AString::AString(const char *s)
-{
-  SetStartLen(MyStringLen(s));
-  MyStringCopy(_chars, s);
-}
-
-AString::AString(const AString &s)
-{
-  SetStartLen(s._len);
-  MyStringCopy(_chars, s._chars);
-}
-
-AString &AString::operator=(char c)
-{
-  if (1 > _limit)
-  {
-    char *newBuf = MY_STRING_NEW_char(1 + 1);
-    MY_STRING_DELETE(_chars);
-    _chars = newBuf;
-    _limit = 1;
-  }
-  _len = 1;
-  char *chars = _chars;
-  chars[0] = c;
-  chars[1] = 0;
-  return *this;
-}
-
-AString &AString::operator=(const char *s)
-{
-  unsigned len = MyStringLen(s);
-  if (len > _limit)
-  {
-    char *newBuf = MY_STRING_NEW_char(len + 1);
-    MY_STRING_DELETE(_chars);
-    _chars = newBuf;
-    _limit = len;
-  }
-  _len = len;
-  MyStringCopy(_chars, s);
-  return *this;
-}
-
-AString &AString::operator=(const AString &s)
-{
-  if (&s == this)
-    return *this;
-  unsigned len = s._len;
-  if (len > _limit)
-  {
-    char *newBuf = MY_STRING_NEW_char(len + 1);
-    MY_STRING_DELETE(_chars);
-    _chars = newBuf;
-    _limit = len;
-  }
-  _len = len;
-  MyStringCopy(_chars, s._chars);
-  return *this;
-}
-
-void AString::SetFromWStr_if_Ascii(const wchar_t *s)
-{
-  unsigned len = 0;
-  {
-    for (;; len++)
-    {
-      wchar_t c = s[len];
-      if (c == 0)
-        break;
-      if (c >= 0x80)
-        return;
-    }
-  }
-  if (len > _limit)
-  {
-    char *newBuf = MY_STRING_NEW_char(len + 1);
-    MY_STRING_DELETE(_chars);
-    _chars = newBuf;
-    _limit = len;
-  }
-  _len = len;
-  char *dest = _chars;
-  unsigned i;
-  for (i = 0; i < len; i++)
-    dest[i] = (char)s[i];
-  dest[i] = 0;
-}
-
-/*
-void AString::SetFromBstr_if_Ascii(BSTR s)
-{
-  unsigned len = ::SysStringLen(s);
-  {
-    for (unsigned i = 0; i < len; i++)
-      if (s[i] <= 0 || s[i] >= 0x80)
-        return;
-  }
-  if (len > _limit)
-  {
-    char *newBuf = MY_STRING_NEW_char(len + 1);
-    MY_STRING_DELETE(_chars);
-    _chars = newBuf;
-    _limit = len;
-  }
-  _len = len;
-  char *dest = _chars;
-  unsigned i;
-  for (i = 0; i < len; i++)
-    dest[i] = (char)s[i];
-  dest[i] = 0;
-}
-*/
-
-void AString::Add_Space() { operator+=(' '); }
-void AString::Add_Space_if_NotEmpty() { if (!IsEmpty()) Add_Space(); }
-void AString::Add_LF() { operator+=('\n'); }
-
-AString &AString::operator+=(const char *s)
-{
-  unsigned len = MyStringLen(s);
-  Grow(len);
-  MyStringCopy(_chars + _len, s);
-  _len += len;
-  return *this;
-}
-
-void AString::Add_OptSpaced(const char *s)
-{
-  Add_Space_if_NotEmpty();
-  (*this) += s;
-}
-
-AString &AString::operator+=(const AString &s)
-{
-  Grow(s._len);
-  MyStringCopy(_chars + _len, s._chars);
-  _len += s._len;
-  return *this;
-}
-
-void AString::Add_UInt32(UInt32 v)
-{
-  char sz[16];
-  ConvertUInt32ToString(v, sz);
-  (*this) += sz;
-}
-
-void AString::SetFrom(const char *s, unsigned len) // no check
-{
-  if (len > _limit)
-  {
-    char *newBuf = MY_STRING_NEW_char(len + 1);
-    MY_STRING_DELETE(_chars);
-    _chars = newBuf;
-    _limit = len;
-  }
-  if (len != 0)
-    memcpy(_chars, s, len);
-  _chars[len] = 0;
-  _len = len;
-}
-
-void AString::SetFrom_CalcLen(const char *s, unsigned len) // no check
-{
-  unsigned i;
-  for (i = 0; i < len; i++)
-    if (s[i] == 0)
-      break;
-  SetFrom(s, i);
-}
-
-int AString::Find(const char *s, unsigned startIndex) const throw()
-{
-  const char *fs = strstr(_chars + startIndex, s);
-  if (!fs)
-    return -1;
-  return (int)(fs - _chars);
-
-  /*
-  if (s[0] == 0)
-    return startIndex;
-  unsigned len = MyStringLen(s);
-  const char *p = _chars + startIndex;
-  for (;; p++)
-  {
-    const char c = *p;
-    if (c != s[0])
-    {
-      if (c == 0)
-        return -1;
-      continue;
-    }
-    unsigned i;
-    for (i = 1; i < len; i++)
-      if (p[i] != s[i])
-        break;
-    if (i == len)
-      return (int)(p - _chars);
-  }
-  */
-}
-
-int AString::ReverseFind(char c) const throw()
-{
-  if (_len == 0)
-    return -1;
-  const char *p = _chars + _len - 1;
-  for (;;)
-  {
-    if (*p == c)
-      return (int)(p - _chars);
-    if (p == _chars)
-      return -1;
-    p--; // p = GetPrevCharPointer(_chars, p);
-  }
-}
-
-int AString::ReverseFind_PathSepar() const throw()
-{
-  if (_len == 0)
-    return -1;
-  const char *p = _chars + _len - 1;
-  for (;;)
-  {
-    char c = *p;
-    if (IS_PATH_SEPAR(c))
-      return (int)(p - _chars);
-    if (p == _chars)
-      return -1;
-    p--;
-  }
-}
-
-void AString::TrimLeft() throw()
-{
-  const char *p = _chars;
-  for (;; p++)
-  {
-    char c = *p;
-    if (c != ' ' && c != '\n' && c != '\t')
-      break;
-  }
-  unsigned pos = (unsigned)(p - _chars);
-  if (pos != 0)
-  {
-    MoveItems(0, pos);
-    _len -= pos;
-  }
-}
-
-void AString::TrimRight() throw()
-{
-  const char *p = _chars;
-  unsigned i;
-  for (i = _len; i != 0; i--)
-  {
-    char c = p[(size_t)i - 1];
-    if (c != ' ' && c != '\n' && c != '\t')
-      break;
-  }
-  if (i != _len)
-  {
-    _chars[i] = 0;
-    _len = i;
-  }
-}
-
-void AString::InsertAtFront(char c)
-{
-  if (_limit == _len)
-    Grow_1();
-  MoveItems(1, 0);
-  _chars[0] = c;
-  _len++;
-}
-
-/*
-void AString::Insert(unsigned index, char c)
-{
-  InsertSpace(index, 1);
-  _chars[index] = c;
-  _len++;
-}
-*/
-
-void AString::Insert(unsigned index, const char *s)
-{
-  unsigned num = MyStringLen(s);
-  if (num != 0)
-  {
-    InsertSpace(index, num);
-    memcpy(_chars + index, s, num);
-    _len += num;
-  }
-}
-
-void AString::Insert(unsigned index, const AString &s)
-{
-  unsigned num = s.Len();
-  if (num != 0)
-  {
-    InsertSpace(index, num);
-    memcpy(_chars + index, s, num);
-    _len += num;
-  }
-}
-
-void AString::RemoveChar(char ch) throw()
-{
-  char *src = _chars;
-  
-  for (;;)
-  {
-    char c = *src++;
-    if (c == 0)
-      return;
-    if (c == ch)
-      break;
-  }
-
-  char *dest = src - 1;
-  
-  for (;;)
-  {
-    char c = *src++;
-    if (c == 0)
-      break;
-    if (c != ch)
-      *dest++ = c;
-  }
-  
-  *dest = 0;
-  _len = (unsigned)(dest - _chars);
-}
-
-// !!!!!!!!!!!!!!! test it if newChar = '\0'
-void AString::Replace(char oldChar, char newChar) throw()
-{
-  if (oldChar == newChar)
-    return; // 0;
-  // unsigned number = 0;
-  int pos = 0;
-  char *chars = _chars;
-  while ((unsigned)pos < _len)
-  {
-    pos = Find(oldChar, pos);
-    if (pos < 0)
-      break;
-    chars[(unsigned)pos] = newChar;
-    pos++;
-    // number++;
-  }
-  return; //  number;
-}
-
-void AString::Replace(const AString &oldString, const AString &newString)
-{
-  if (oldString.IsEmpty())
-    return; // 0;
-  if (oldString == newString)
-    return; // 0;
-  unsigned oldLen = oldString.Len();
-  unsigned newLen = newString.Len();
-  // unsigned number = 0;
-  int pos = 0;
-  while ((unsigned)pos < _len)
-  {
-    pos = Find(oldString, pos);
-    if (pos < 0)
-      break;
-    Delete(pos, oldLen);
-    Insert(pos, newString);
-    pos += newLen;
-    // number++;
-  }
-  // return number;
-}
-
-void AString::Delete(unsigned index) throw()
-{
-  MoveItems(index, index + 1);
-  _len--;
-}
-
-void AString::Delete(unsigned index, unsigned count) throw()
-{
-  if (index + count > _len)
-    count = _len - index;
-  if (count > 0)
-  {
-    MoveItems(index, index + count);
-    _len -= count;
-  }
-}
-
-void AString::DeleteFrontal(unsigned num) throw()
-{
-  if (num != 0)
-  {
-    MoveItems(0, num);
-    _len -= num;
-  }
-}
+// 
+//AString::AString()
+//{
+//  _chars = 0;
+//  _chars = MY_STRING_NEW_char(kStartStringCapacity);
+//  _len = 0;
+//  _limit = kStartStringCapacity - 1;
+//  _chars[0] = 0;
+//}
+//
+//AString::AString(char c)
+//{
+//  SetStartLen(1);
+//  char *chars = _chars;
+//  chars[0] = c;
+//  chars[1] = 0;
+//}
+//
+//AString::AString(const char *s)
+//{
+//  SetStartLen(MyStringLen(s));
+//  MyStringCopy(_chars, s);
+//}
+//
+//AString::AString(const AString &s)
+//{
+//  SetStartLen(s._len);
+//  MyStringCopy(_chars, s._chars);
+//}
+//
+//AString &AString::operator=(char c)
+//{
+//  if (1 > _limit)
+//  {
+//    char *newBuf = MY_STRING_NEW_char(1 + 1);
+//    MY_STRING_DELETE(_chars);
+//    _chars = newBuf;
+//    _limit = 1;
+//  }
+//  _len = 1;
+//  char *chars = _chars;
+//  chars[0] = c;
+//  chars[1] = 0;
+//  return *this;
+//}
+//
+//AString &AString::operator=(const char *s)
+//{
+//  unsigned len = MyStringLen(s);
+//  if (len > _limit)
+//  {
+//    char *newBuf = MY_STRING_NEW_char(len + 1);
+//    MY_STRING_DELETE(_chars);
+//    _chars = newBuf;
+//    _limit = len;
+//  }
+//  _len = len;
+//  MyStringCopy(_chars, s);
+//  return *this;
+//}
+//
+//AString &AString::operator=(const AString &s)
+//{
+//  if (&s == this)
+//    return *this;
+//  unsigned len = s._len;
+//  if (len > _limit)
+//  {
+//    char *newBuf = MY_STRING_NEW_char(len + 1);
+//    MY_STRING_DELETE(_chars);
+//    _chars = newBuf;
+//    _limit = len;
+//  }
+//  _len = len;
+//  MyStringCopy(_chars, s._chars);
+//  return *this;
+//}
+//
+//void AString::SetFromWStr_if_Ascii(const wchar_t *s)
+//{
+//  unsigned len = 0;
+//  {
+//    for (;; len++)
+//    {
+//      wchar_t c = s[len];
+//      if (c == 0)
+//        break;
+//      if (c >= 0x80)
+//        return;
+//    }
+//  }
+//  if (len > _limit)
+//  {
+//    char *newBuf = MY_STRING_NEW_char(len + 1);
+//    MY_STRING_DELETE(_chars);
+//    _chars = newBuf;
+//    _limit = len;
+//  }
+//  _len = len;
+//  char *dest = _chars;
+//  unsigned i;
+//  for (i = 0; i < len; i++)
+//    dest[i] = (char)s[i];
+//  dest[i] = 0;
+//}
+//
+//void AString::SetFromBstr_if_Ascii(BSTR s)
+//{
+//  unsigned len = ::SysStringLen(s);
+//  {
+//    for (unsigned i = 0; i < len; i++)
+//      if (s[i] <= 0 || s[i] >= 0x80)
+//        return;
+//  }
+//  if (len > _limit)
+//  {
+//    char *newBuf = MY_STRING_NEW_char(len + 1);
+//    MY_STRING_DELETE(_chars);
+//    _chars = newBuf;
+//    _limit = len;
+//  }
+//  _len = len;
+//  char *dest = _chars;
+//  unsigned i;
+//  for (i = 0; i < len; i++)
+//    dest[i] = (char)s[i];
+//  dest[i] = 0;
+//}
+//
+//void AString::Add_Space() { operator+=(' '); }
+//void AString::Add_Space_if_NotEmpty() { if (!IsEmpty()) Add_Space(); }
+//void AString::Add_LF() { operator+=('\n'); }
+//
+//AString &AString::operator+=(const char *s)
+//{
+//  unsigned len = MyStringLen(s);
+//  Grow(len);
+//  MyStringCopy(_chars + _len, s);
+//  _len += len;
+//  return *this;
+//}
+//
+//void AString::Add_OptSpaced(const char *s)
+//{
+//  Add_Space_if_NotEmpty();
+//  (*this) += s;
+//}
+//
+//AString &AString::operator+=(const AString &s)
+//{
+//  Grow(s._len);
+//  MyStringCopy(_chars + _len, s._chars);
+//  _len += s._len;
+//  return *this;
+//}
+//
+//void AString::Add_UInt32(UInt32 v)
+//{
+//  char sz[16];
+//  ConvertUInt32ToString(v, sz);
+//  (*this) += sz;
+//}
+//
+//void AString::SetFrom(const char *s, unsigned len) // no check
+//{
+//  if (len > _limit)
+//  {
+//    char *newBuf = MY_STRING_NEW_char(len + 1);
+//    MY_STRING_DELETE(_chars);
+//    _chars = newBuf;
+//    _limit = len;
+//  }
+//  if (len != 0)
+//    memcpy(_chars, s, len);
+//  _chars[len] = 0;
+//  _len = len;
+//}
+//
+//void AString::SetFrom_CalcLen(const char *s, unsigned len) // no check
+//{
+//  unsigned i;
+//  for (i = 0; i < len; i++)
+//    if (s[i] == 0)
+//      break;
+//  SetFrom(s, i);
+//}
+//
+//int AString::Find(const char *s, unsigned startIndex) const throw()
+//{
+//  const char *fs = strstr(_chars + startIndex, s);
+//  if (!fs)
+//    return -1;
+//  return (int)(fs - _chars);
+//
+//  /*
+//  if (s[0] == 0)
+//    return startIndex;
+//  unsigned len = MyStringLen(s);
+//  const char *p = _chars + startIndex;
+//  for (;; p++)
+//  {
+//    const char c = *p;
+//    if (c != s[0])
+//    {
+//      if (c == 0)
+//        return -1;
+//      continue;
+//    }
+//    unsigned i;
+//    for (i = 1; i < len; i++)
+//      if (p[i] != s[i])
+//        break;
+//    if (i == len)
+//      return (int)(p - _chars);
+//  }
+//  */
+//}
+//
+//int AString::ReverseFind(char c) const throw()
+//{
+//  if (_len == 0)
+//    return -1;
+//  const char *p = _chars + _len - 1;
+//  for (;;)
+//  {
+//    if (*p == c)
+//      return (int)(p - _chars);
+//    if (p == _chars)
+//      return -1;
+//    p--; // p = GetPrevCharPointer(_chars, p);
+//  }
+//}
+//
+//int AString::ReverseFind_PathSepar() const throw()
+//{
+//  if (_len == 0)
+//    return -1;
+//  const char *p = _chars + _len - 1;
+//  for (;;)
+//  {
+//    char c = *p;
+//    if (IS_PATH_SEPAR(c))
+//      return (int)(p - _chars);
+//    if (p == _chars)
+//      return -1;
+//    p--;
+//  }
+//}
+//
+//void AString::TrimLeft() throw()
+//{
+//  const char *p = _chars;
+//  for (;; p++)
+//  {
+//    char c = *p;
+//    if (c != ' ' && c != '\n' && c != '\t')
+//      break;
+//  }
+//  unsigned pos = (unsigned)(p - _chars);
+//  if (pos != 0)
+//  {
+//    MoveItems(0, pos);
+//    _len -= pos;
+//  }
+//}
+//
+//void AString::TrimRight() throw()
+//{
+//  const char *p = _chars;
+//  unsigned i;
+//  for (i = _len; i != 0; i--)
+//  {
+//    char c = p[(size_t)i - 1];
+//    if (c != ' ' && c != '\n' && c != '\t')
+//      break;
+//  }
+//  if (i != _len)
+//  {
+//    _chars[i] = 0;
+//    _len = i;
+//  }
+//}
+//
+//void AString::InsertAtFront(char c)
+//{
+//  if (_limit == _len)
+//    Grow_1();
+//  MoveItems(1, 0);
+//  _chars[0] = c;
+//  _len++;
+//}
+//
+//
+//void AString::Insert(unsigned index, char c)
+//{
+//  InsertSpace(index, 1);
+//  _chars[index] = c;
+//  _len++;
+//}
+//*/
+//
+//void AString::Insert(unsigned index, const char *s)
+//{
+//  unsigned num = MyStringLen(s);
+//  if (num != 0)
+//  {
+//    InsertSpace(index, num);
+//    memcpy(_chars + index, s, num);
+//    _len += num;
+//  }
+//}
+//
+//void AString::Insert(unsigned index, const AString &s)
+//{
+//  unsigned num = s.Len();
+//  if (num != 0)
+//  {
+//    InsertSpace(index, num);
+//    memcpy(_chars + index, s, num);
+//    _len += num;
+//  }
+//}
+//
+//void AString::RemoveChar(char ch) throw()
+//{
+//  char *src = _chars;
+//  
+//  for (;;)
+//  {
+//    char c = *src++;
+//    if (c == 0)
+//      return;
+//    if (c == ch)
+//      break;
+//  }
+//
+//  char *dest = src - 1;
+//  
+//  for (;;)
+//  {
+//    char c = *src++;
+//    if (c == 0)
+//      break;
+//    if (c != ch)
+//      *dest++ = c;
+//  }
+//  
+//  *dest = 0;
+//  _len = (unsigned)(dest - _chars);
+//}
+//
+//// !!!!!!!!!!!!!!! test it if newChar = '\0'
+//void AString::Replace(char oldChar, char newChar) throw()
+//{
+//  if (oldChar == newChar)
+//    return; // 0;
+//  // unsigned number = 0;
+//  int pos = 0;
+//  char *chars = _chars;
+//  while ((unsigned)pos < _len)
+//  {
+//    pos = Find(oldChar, pos);
+//    if (pos < 0)
+//      break;
+//    chars[(unsigned)pos] = newChar;
+//    pos++;
+//    // number++;
+//  }
+//  return; //  number;
+//}
+//
+//void AString::Replace(const AString &oldString, const AString &newString)
+//{
+//  if (oldString.IsEmpty())
+//    return; // 0;
+//  if (oldString == newString)
+//    return; // 0;
+//  unsigned oldLen = oldString.Len();
+//  unsigned newLen = newString.Len();
+//  // unsigned number = 0;
+//  int pos = 0;
+//  while ((unsigned)pos < _len)
+//  {
+//    pos = Find(oldString, pos);
+//    if (pos < 0)
+//      break;
+//    Delete(pos, oldLen);
+//    Insert(pos, newString);
+//    pos += newLen;
+//    // number++;
+//  }
+//  // return number;
+//}
+//
+//void AString::Delete(unsigned index) throw()
+//{
+//  MoveItems(index, index + 1);
+//  _len--;
+//}
+//
+//void AString::Delete(unsigned index, unsigned count) throw()
+//{
+//  if (index + count > _len)
+//    count = _len - index;
+//  if (count > 0)
+//  {
+//    MoveItems(index, index + count);
+//    _len -= count;
+//  }
+//}
+//
+//void AString::DeleteFrontal(unsigned num) throw()
+//{
+//  if (num != 0)
+//  {
+//    MoveItems(0, num);
+//    _len -= num;
+//  }
+//}
 
 /*
 AString operator+(const AString &s1, const AString &s2)
@@ -922,9 +915,6 @@ AString operator+(const AString &s, char c)
   result += c;
   return result;
 }
-*/
-
-/*
 AString operator+(char c, const AString &s)
 {
   AString result(c);
@@ -934,10 +924,9 @@ AString operator+(char c, const AString &s)
 */
 
 
-
-
 // ---------- UString ----------
-
+#define k_Alloc_Len_Limit 0x40000000
+static const unsigned kStartStringCapacity = 4;
 void UString::InsertSpace(unsigned index, unsigned size)
 {
   Grow(size);
@@ -996,7 +985,6 @@ void UString::Grow(unsigned n)
   ReAlloc(next - 1);
 }
 
-
 UString::UString(unsigned num, const wchar_t *s)
 {
   unsigned len = MyStringLen(s);
@@ -1006,7 +994,6 @@ UString::UString(unsigned num, const wchar_t *s)
   wmemcpy(_chars, s, num);
   _chars[num] = 0;
 }
-
 
 UString::UString(unsigned num, const UString &s)
 {
@@ -1226,14 +1213,12 @@ UString &UString::operator+=(const char *s)
   return *this;
 }
 
-
 void UString::Add_UInt32(UInt32 v)
 {
   char sz[16];
   ConvertUInt32ToString(v, sz);
   (*this) += sz;
 }
-
 
 int UString::Find(const wchar_t *s, unsigned startIndex) const throw()
 {
@@ -1488,136 +1473,132 @@ void UString::DeleteFrontal(unsigned num) throw()
 
 
 // ---------- UString2 ----------
-
-void UString2::ReAlloc2(unsigned newLimit)
-{
-  if (newLimit >= k_Alloc_Len_Limit) throw 20130221;
-  // MY_STRING_REALLOC(_chars, wchar_t, newLimit + 1, 0);
-  _chars = MY_STRING_NEW_wchar_t(newLimit + 1);
-}
-
-void UString2::SetStartLen(unsigned len)
-{
-  _chars = 0;
-  _chars = MY_STRING_NEW_wchar_t(len + 1);
-  _len = len;
-}
-
-
-/*
-UString2::UString2(wchar_t c)
-{
-  SetStartLen(1);
-  wchar_t *chars = _chars;
-  chars[0] = c;
-  chars[1] = 0;
-}
-*/
-
-UString2::UString2(const wchar_t *s)
-{
-  unsigned len = MyStringLen(s);
-  SetStartLen(len);
-  wmemcpy(_chars, s, len + 1);
-}
-
-UString2::UString2(const UString2 &s): _chars(NULL), _len(0)
-{
-  if (s._chars)
-  {
-    SetStartLen(s._len);
-    wmemcpy(_chars, s._chars, s._len + 1);
-  }
-}
-
-/*
-UString2 &UString2::operator=(wchar_t c)
-{
-  if (1 > _len)
-  {
-    wchar_t *newBuf = MY_STRING_NEW_wchar_t(1 + 1);
-    if (_chars)
-      MY_STRING_DELETE(_chars);
-    _chars = newBuf;
-  }
-  _len = 1;
-  wchar_t *chars = _chars;
-  chars[0] = c;
-  chars[1] = 0;
-  return *this;
-}
-*/
-
-UString2 &UString2::operator=(const wchar_t *s)
-{
-  unsigned len = MyStringLen(s);
-  if (len > _len)
-  {
-    wchar_t *newBuf = MY_STRING_NEW_wchar_t(len + 1);
-    if (_chars)
-      MY_STRING_DELETE(_chars);
-    _chars = newBuf;
-  }
-  _len = len;
-  MyStringCopy(_chars, s);
-  return *this;
-}
-
-void UString2::SetFromAscii(const char *s)
-{
-  unsigned len = MyStringLen(s);
-  if (len > _len)
-  {
-    wchar_t *newBuf = MY_STRING_NEW_wchar_t(len + 1);
-    if (_chars)
-      MY_STRING_DELETE(_chars);
-    _chars = newBuf;
-  }
-  wchar_t *chars = _chars;
-  for (unsigned i = 0; i < len; i++)
-    chars[i] = (unsigned char)s[i];
-  chars[len] = 0;
-  _len = len;
-}
-
-UString2 &UString2::operator=(const UString2 &s)
-{
-  if (&s == this)
-    return *this;
-  unsigned len = s._len;
-  if (len > _len)
-  {
-    wchar_t *newBuf = MY_STRING_NEW_wchar_t(len + 1);
-    if (_chars)
-      MY_STRING_DELETE(_chars);
-    _chars = newBuf;
-  }
-  _len = len;
-  MyStringCopy(_chars, s._chars);
-  return *this;
-}
-
-bool operator==(const UString2 &s1, const UString2 &s2)
-{
-  return s1.Len() == s2.Len() && (s1.IsEmpty() || wcscmp(s1.GetRawPtr(), s2.GetRawPtr()) == 0);
-}
-
-bool operator==(const UString2 &s1, const wchar_t *s2)
-{
-  if (s1.IsEmpty())
-    return (*s2 == 0);
-  return wcscmp(s1.GetRawPtr(), s2) == 0;
-}
-
-bool operator==(const wchar_t *s1, const UString2 &s2)
-{
-  if (s2.IsEmpty())
-    return (*s1 == 0);
-  return wcscmp(s1, s2.GetRawPtr()) == 0;
-}
-
-
-
+//void UString2::ReAlloc2(unsigned newLimit)
+//{
+//  if (newLimit >= k_Alloc_Len_Limit) throw 20130221;
+//  // MY_STRING_REALLOC(_chars, wchar_t, newLimit + 1, 0);
+//  _chars = MY_STRING_NEW_wchar_t(newLimit + 1);
+//}
+//
+//void UString2::SetStartLen(unsigned len)
+//{
+//  _chars = 0;
+//  _chars = MY_STRING_NEW_wchar_t(len + 1);
+//  _len = len;
+//}
+//
+//
+//
+//UString2::UString2(wchar_t c)
+//{
+//  SetStartLen(1);
+//  wchar_t *chars = _chars;
+//  chars[0] = c;
+//  chars[1] = 0;
+//}
+//
+//
+//UString2::UString2(const wchar_t *s)
+//{
+//  unsigned len = MyStringLen(s);
+//  SetStartLen(len);
+//  wmemcpy(_chars, s, len + 1);
+//}
+//
+//UString2::UString2(const UString2 &s): _chars(NULL), _len(0)
+//{
+//  if (s._chars)
+//  {
+//    SetStartLen(s._len);
+//    wmemcpy(_chars, s._chars, s._len + 1);
+//  }
+//}
+//
+//
+//UString2 &UString2::operator=(wchar_t c)
+//{
+//  if (1 > _len)
+//  {
+//    wchar_t *newBuf = MY_STRING_NEW_wchar_t(1 + 1);
+//    if (_chars)
+//      MY_STRING_DELETE(_chars);
+//    _chars = newBuf;
+//  }
+//  _len = 1;
+//  wchar_t *chars = _chars;
+//  chars[0] = c;
+//  chars[1] = 0;
+//  return *this;
+//}
+//
+//
+//UString2 &UString2::operator=(const wchar_t *s)
+//{
+//  unsigned len = MyStringLen(s);
+//  if (len > _len)
+//  {
+//    wchar_t *newBuf = MY_STRING_NEW_wchar_t(len + 1);
+//    if (_chars)
+//      MY_STRING_DELETE(_chars);
+//    _chars = newBuf;
+//  }
+//  _len = len;
+//  MyStringCopy(_chars, s);
+//  return *this;
+//}
+//
+//void UString2::SetFromAscii(const char *s)
+//{
+//  unsigned len = MyStringLen(s);
+//  if (len > _len)
+//  {
+//    wchar_t *newBuf = MY_STRING_NEW_wchar_t(len + 1);
+//    if (_chars)
+//      MY_STRING_DELETE(_chars);
+//    _chars = newBuf;
+//  }
+//  wchar_t *chars = _chars;
+//  for (unsigned i = 0; i < len; i++)
+//    chars[i] = (unsigned char)s[i];
+//  chars[len] = 0;
+//  _len = len;
+//}
+//
+//UString2 &UString2::operator=(const UString2 &s)
+//{
+//  if (&s == this)
+//    return *this;
+//  unsigned len = s._len;
+//  if (len > _len)
+//  {
+//    wchar_t *newBuf = MY_STRING_NEW_wchar_t(len + 1);
+//    if (_chars)
+//      MY_STRING_DELETE(_chars);
+//    _chars = newBuf;
+//  }
+//  _len = len;
+//  MyStringCopy(_chars, s._chars);
+//  return *this;
+//}
+//
+//bool operator==(const UString2 &s1, const UString2 &s2)
+//{
+//  return s1.Len() == s2.Len() && (s1.IsEmpty() || wcscmp(s1.GetRawPtr(), s2.GetRawPtr()) == 0);
+//}
+//
+//bool operator==(const UString2 &s1, const wchar_t *s2)
+//{
+//  if (s1.IsEmpty())
+//    return (*s2 == 0);
+//  return wcscmp(s1.GetRawPtr(), s2) == 0;
+//}
+//
+//bool operator==(const wchar_t *s1, const UString2 &s2)
+//{
+//  if (s2.IsEmpty())
+//    return (*s1 == 0);
+//  return wcscmp(s1, s2.GetRawPtr()) == 0;
+//}
 // ----------------------------------------
 
 /*

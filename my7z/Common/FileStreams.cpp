@@ -29,7 +29,6 @@ static inline HRESULT ConvertBoolToHRESULT(bool result)
   #endif
 }
 
-
 static const UInt32 kClusterSize = 1 << 18;
 CInFileStream::CInFileStream():
   #ifdef SUPPORT_DEVICE_FILE

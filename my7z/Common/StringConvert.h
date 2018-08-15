@@ -6,25 +6,25 @@
 #include "MyString.h"
 //#include "MyWindows.h"
 #include <windows.h>
-UString MultiByteToUnicodeString(const AString &src, UINT codePage = CP_ACP);
+//UString MultiByteToUnicodeString(const AString &src, UINT codePage = CP_ACP);
 UString MultiByteToUnicodeString(const char *src, UINT codePage = CP_ACP);
 
 // optimized versions that work faster for ASCII strings
-void MultiByteToUnicodeString2(UString &dest, const AString &src, UINT codePage = CP_ACP);
+//void MultiByteToUnicodeString2(UString &dest, const AString &src, UINT codePage = CP_ACP);
 // void UnicodeStringToMultiByte2(AString &dest, const UString &s, UINT codePage, char defaultChar, bool &defaultCharWasUsed);
-void UnicodeStringToMultiByte2(AString &dest, const UString &src, UINT codePage);
+//void UnicodeStringToMultiByte2(AString &dest, const UString &src, UINT codePage);
 
-AString UnicodeStringToMultiByte(const UString &src, UINT codePage, char defaultChar, bool &defaultCharWasUsed);
-AString UnicodeStringToMultiByte(const UString &src, UINT codePage = CP_ACP);
+//AString UnicodeStringToMultiByte(const UString &src, UINT codePage, char defaultChar, bool &defaultCharWasUsed);
+//AString UnicodeStringToMultiByte(const UString &src, UINT codePage = CP_ACP);
 
 inline const wchar_t* GetUnicodeString(const wchar_t *u)  { return u; }
 inline const UString& GetUnicodeString(const UString &u)  { return u; }
 
-inline UString GetUnicodeString(const AString &a)  { return MultiByteToUnicodeString(a); }
+//inline UString GetUnicodeString(const AString &a)  { return MultiByteToUnicodeString(a); }
 inline UString GetUnicodeString(const char *a)     { return MultiByteToUnicodeString(a); }
 
-inline UString GetUnicodeString(const AString &a, UINT codePage)
-  { return MultiByteToUnicodeString(a, codePage); }
+//inline UString GetUnicodeString(const AString &a, UINT codePage)
+// { return MultiByteToUnicodeString(a, codePage); }
 inline UString GetUnicodeString(const char *a, UINT codePage)
   { return MultiByteToUnicodeString(a, codePage); }
 
@@ -32,10 +32,10 @@ inline const wchar_t* GetUnicodeString(const wchar_t *u, UINT) { return u; }
 inline const UString& GetUnicodeString(const UString &u, UINT) { return u; }
 
 inline const char*    GetAnsiString(const char    *a) { return a; }
-inline const AString& GetAnsiString(const AString &a) { return a; }
+//inline const AString& GetAnsiString(const AString &a) { return a; }
 
-inline AString GetAnsiString(const wchar_t *u) { return UnicodeStringToMultiByte(UString(u)); }
-inline AString GetAnsiString(const UString &u) { return UnicodeStringToMultiByte(u); }
+//inline AString GetAnsiString(const wchar_t *u) { return UnicodeStringToMultiByte(UString(u)); }
+//inline AString GetAnsiString(const UString &u) { return UnicodeStringToMultiByte(u); }
 
 /*
 inline const char* GetOemString(const char* oem)
@@ -44,9 +44,9 @@ inline const AString& GetOemString(const AString &oem)
   { return oem; }
 */
 const char* GetOemString(const char* oem);
-const AString& GetOemString(const AString &oem);
-inline AString GetOemString(const UString &u)
-  { return UnicodeStringToMultiByte(u, CP_OEMCP); }
+//const AString& GetOemString(const AString &oem);
+//inline AString GetOemString(const UString &u)
+//  { return UnicodeStringToMultiByte(u, CP_OEMCP); }
 
 #ifdef _UNICODE
   inline const wchar_t* GetSystemString(const wchar_t *u) { return u;}
@@ -54,9 +54,9 @@ inline AString GetOemString(const UString &u)
   inline const wchar_t* GetSystemString(const wchar_t *u, UINT /* codePage */) { return u;}
   inline const UString& GetSystemString(const UString &u, UINT /* codePage */) { return u;}
   
-  inline UString GetSystemString(const AString &a, UINT codePage) { return MultiByteToUnicodeString(a, codePage); }
+ // inline UString GetSystemString(const AString &a, UINT codePage) { return MultiByteToUnicodeString(a, codePage); }
   inline UString GetSystemString(const char    *a, UINT codePage) { return MultiByteToUnicodeString(a, codePage); }
-  inline UString GetSystemString(const AString &a) { return MultiByteToUnicodeString(a); }
+ // inline UString GetSystemString(const AString &a) { return MultiByteToUnicodeString(a); }
   inline UString GetSystemString(const char    *a) { return MultiByteToUnicodeString(a); }
 #else
   inline const char*    GetSystemString(const char    *a) { return a; }
@@ -82,7 +82,7 @@ inline AString GetOemString(const UString &u)
 #endif
 
 #ifndef UNDER_CE
-AString SystemStringToOemString(const CSysString &src);
+//AString SystemStringToOemString(const CSysString &src);
 #endif
 
 #endif
